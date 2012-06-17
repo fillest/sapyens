@@ -70,7 +70,8 @@ class DeclarativeReflectedBase(object):
 
 #DBObject = declarative_base()
 #DBObject = declarative_base(cls = DeclarativeReflectedBase)
-class Reflected (DeclarativeReflectedBase, DBObject):
+#class Reflected (DeclarativeReflectedBase, DBObject):
+class Reflected (DeclarativeReflectedBase, declarative_base()):
 	__abstract__ = True
 
 
