@@ -74,6 +74,9 @@ class DeclarativeReflectedBase(object):
 class Reflected (DeclarativeReflectedBase, declarative_base()):
 	__abstract__ = True
 
+	def __repr__ (self):
+		return u"<{0}.{1} #{2}>".format(self.__class__.__module__, self.__class__.__name__, self.id)
+
 
 def make_classes (use_zope_ext = False):
 	if use_zope_ext:
