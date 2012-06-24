@@ -1,10 +1,10 @@
-# sapyens - SQLAlchemy & Pyramid enhancements
+# sapyens — SQLAlchemy & Pyramid enhancements
 
 ## Features
-* sql migration
-* SQLAlchemy reflective initialisation boilerplate
-* various helpers
+* sapyens.db — SQLAlchemy helpers (initialisation, classes, etc.)
 * sapyens.caster — data validator/mapper
+* sapyens.helpers — various helpers
+* sapyens.migrate — plain SQL database migration
 
 ## License
 [The MIT License](http://www.opensource.org/licenses/mit-license.php)
