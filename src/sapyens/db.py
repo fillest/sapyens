@@ -1,14 +1,14 @@
+import logging
+from contextlib import contextmanager
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from sqlalchemy import Table
 from sqlalchemy.orm.util import _is_mapped_class
-from contextlib import contextmanager
-import logging
-#NOTE extra conditional import in make_classes() below
+#NOTE conditional zope.sqlalchemy import in make_classes() below
 
 
 @contextmanager
-def db_log_level (level):
+def engine_log_level (level):
 	db_logger = logging.getLogger('sqlalchemy.engine')
 	old_level = db_logger.level
 
@@ -19,7 +19,7 @@ def db_log_level (level):
 		db_logger.level = old_level
 
 
-#TODO will be obsolete in 0.8 (see DeferredReflection)
+#TODO will be obsolete in sqla0.8 (see DeferredReflection)
 #see http://docs.sqlalchemy.org/en/rel_0_7/orm/examples.html#declarative-reflection
 #see http://hg.sqlalchemy.org/sqlalchemy/file/8e1b23314c39/examples/declarative_reflection/declarative_reflection.py
 #see https://bitbucket.org/zzzeek/sqlalchemy/pull-request/1/copied-declarativereflectedbase-from-the
@@ -101,5 +101,5 @@ def init (engine, DBSession, Reflected, on_before_reflect = None):
 	if on_before_reflect:
 		on_before_reflect()
 
-	with db_log_level(logging.WARN):
+	with engine_log_level(logging.WARN):
 		Reflected.prepare(engine)
