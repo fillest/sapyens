@@ -2,7 +2,6 @@
 
 ## Features
 * sapyens.db — SQLAlchemy helpers (initialisation, classes, etc.)
-* sapyens.caster — data validator/mapper
 * sapyens.helpers — various helpers
 * sapyens.migrate — plain SQL database migration
 
