@@ -61,11 +61,11 @@ class CreateView (SubmitView):
 
 	def include_to_config (self, config):
 		config.add_route(self.route_name, self.route_path)
-		config.add_view(self, route_name = self.route_name, renderer = self.renderer, request_method = 'POST')
+		config.add_view(self, route_name = self.route_name, renderer = self.renderer, request_method = 'POST', permission = self.permission)
 
 		config.add_view(lambda req: HTTPFound(
 			location = self._make_GET_redirect_route(req)
-		), route_name = self.route_name, request_method = 'GET')
+		), route_name = self.route_name, request_method = 'GET', permission = self.permission)
 
 	def _make_GET_redirect_route (self, request): #TODO shit
 		return req.route_url(self.redirect_route)
@@ -89,7 +89,7 @@ class EditView (CrudView):
 
 	def include_to_config (self, config):
 		config.add_route(self.route_name, self.route_path)
-		config.add_view(self, route_name = self.route_name, renderer = self.renderer)
+		config.add_view(self, route_name = self.route_name, renderer = self.renderer, permission = self.permission)
 
 class NewView (EditView):
 	def __call__ (self, request):
@@ -118,7 +118,7 @@ class ListView (CrudView):
 
 	def include_to_config (self, config):
 		config.add_route(self.route_name, self.route_path)
-		config.add_view(self, route_name = self.route_name, renderer = self.renderer)
+		config.add_view(self, route_name = self.route_name, renderer = self.renderer, permission = self.permission)
 
 class DeleteView (CrudView):
 	redirect_route = None
@@ -130,7 +130,7 @@ class DeleteView (CrudView):
 
 	def include_to_config (self, config):
 		config.add_route(self.route_name, self.route_path)
-		config.add_view(self, route_name = self.route_name)
+		config.add_view(self, route_name = self.route_name, permission = self.permission)
 
 
 class Crud (object):
@@ -150,11 +150,13 @@ class Crud (object):
 			view_class(cls.model, cls.form).include_to_config(config)
 
 
-def make_view_classes (pathname, db_session_, new = NewView, edit = True, create = True, update = True, list_ = True, delete = True):
+def make_view_classes (pathname, db_session_, permission_ = 'admin',
+		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True):
 	classes = []
 
 	class CommonParams (object):
 		renderer = '%s/edit.mako' % pathname
+		permission = permission_
 
 	list_route_ = '%s.list' % pathname
 	delete_route_ = '%s.delete' % pathname
