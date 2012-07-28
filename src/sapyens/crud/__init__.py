@@ -77,6 +77,7 @@ class UpdateView (CreateView):
 class EditView (CrudView):
 	submit_path_route = None
 	list_route = None
+	page_title = None
 
 	def __call__ (self, request):
 		model = get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
@@ -85,6 +86,7 @@ class EditView (CrudView):
 			'form': self._form_class(obj = model, csrf_context = request),
 			'submit_path': request.route_path(self.submit_path_route, id = model.id),
 			'list_route': self.list_route,
+			'page_title': (self.page_title or (u"edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id)
 		}
 
 	def include_to_config (self, config):
@@ -98,6 +100,7 @@ class NewView (EditView):
 			'form': self._form_class(csrf_context = request),
 			'submit_path': request.route_path(self.submit_path_route),
 			'list_route': self.list_route,
+			'page_title': self.page_title or (u"create %s" % unicode(self._model.__name__))
 		}
 
 class ListView (CrudView):
@@ -105,6 +108,7 @@ class ListView (CrudView):
 	edit_title = lambda _self, obj: obj
 	new_route = None
 	delete_route = None
+	page_title = None
 
 	def __call__ (self, request):
 		models = self._model.query.order_by(self._model.id.desc()).all()
@@ -114,6 +118,7 @@ class ListView (CrudView):
 			'edit_title': self.edit_title,
 			'new_route': self.new_route,
 			'delete_route': self.delete_route,
+			'page_title': self.page_title or (u"%s list" % unicode(self._model.__name__))
 		}
 
 	def include_to_config (self, config):
@@ -155,7 +160,7 @@ def make_view_classes (pathname, db_session_, permission_ = 'admin',
 	classes = []
 
 	class CommonParams (object):
-		renderer = '%s/edit.mako' % pathname
+		renderer = 'sapyens.crud:templates/admin/edit.mako'
 		permission = permission_
 
 	list_route_ = '%s.list' % pathname
@@ -201,7 +206,7 @@ def make_view_classes (pathname, db_session_, permission_ = 'admin',
 
 	if list_:
 		class List (CommonParams, ListView):
-			renderer = '%s/list.mako' % pathname
+			renderer = 'sapyens.crud:templates/admin/list.mako'
 			route_name = list_route_
 			edit_route = Edit.route_name #TODO !
 			route_path = '/%s/list' % pathname
