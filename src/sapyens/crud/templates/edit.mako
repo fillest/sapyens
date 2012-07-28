@@ -1,5 +1,5 @@
 <%!
-	import wtforms.fields
+	import wtforms.widgets
 %>
 
 
@@ -33,7 +33,7 @@
 					</ul>
 				% endif
 
-				% if not isinstance(field, wtforms.fields.HiddenField):
+				% if not isinstance(field.widget, wtforms.widgets.HiddenInput):
 					${field.label}
 				% endif
 
