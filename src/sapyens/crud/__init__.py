@@ -29,6 +29,7 @@ class SubmitView (CrudView):
 	redirect_route = None
 	db_session = None
 	list_route = None
+	page_title = None
 
 	def _fetch_model (self, request):
 		raise NotImplementedError()
@@ -53,7 +54,11 @@ class SubmitView (CrudView):
 				'form': form,
 				'submit_path': request.current_route_path(),
 				'list_route': self.list_route,
+				'page_title': self._page_title(model),
 			}
+
+	def _page_title (self, model):
+		raise NotImplementedError()
 
 class CreateView (SubmitView):
 	def _fetch_model (self, _request):
@@ -70,9 +75,15 @@ class CreateView (SubmitView):
 	def _make_GET_redirect_route (self, request): #TODO shit
 		return req.route_url(self.redirect_route)
 
+	def _page_title (self, _model):
+		return self.page_title or (u"create %s" % unicode(self._model.__name__)) #TODO copypaste
+
 class UpdateView (CreateView):
 	def _fetch_model (self, request):
 		return get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
+
+	def _page_title (self, model):
+		return (self.page_title or (u"edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id) #TODO copypaste
 
 class EditView (CrudView):
 	submit_path_route = None
