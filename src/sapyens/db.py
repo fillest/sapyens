@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from sqlalchemy import Table
 from sqlalchemy.orm.util import _is_mapped_class
+from pyramid.httpexceptions import HTTPNotFound
 #NOTE conditional zope.sqlalchemy import in make_classes() below
 
 
@@ -68,6 +69,10 @@ class DeclarativeReflectedBase(object):
 
             klass.__mapper__ = mapper(*args, **kw)
 
+
+class NotFound (Exception):
+	pass
+
 #DBObject = declarative_base()
 #DBObject = declarative_base(cls = DeclarativeReflectedBase)
 #class Reflected (DeclarativeReflectedBase, DBObject):
@@ -76,6 +81,25 @@ class Reflected (DeclarativeReflectedBase, declarative_base()):
 
 	def __repr__ (self):
 		return u"<{0}.{1} #{2}>".format(self.__class__.__module__, self.__class__.__name__, self.id)
+
+	@classmethod
+	def try_get (cls, **kwargs):
+		obj = cls.query.filter_by(**kwargs).first()
+		if obj:
+			return obj
+		else:
+			raise NotFound()
+
+
+def notfound_tween_factory (handler, _registry):
+	def tween (request):
+		try:
+			response = handler(request)
+		except NotFound:
+			raise HTTPNotFound()
+
+		return response
+	return tween
 
 
 def make_classes (use_zope_ext = False):
