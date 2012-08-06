@@ -7,8 +7,9 @@ requires = [
 
 setuptools.setup(
 	name = 'sapyens',
-	version = '0.1',
+	version = '0.1.0',
 	description = 'SQLAlchemy & Pyramid enhancements',
+	long_description = 'SQLAlchemy & Pyramid enhancements',
 	author = 'Philipp Saveliev',
 	author_email = 'fsfeel@gmail.com',
 	url = 'https://github.com/fillest/sapyens',
@@ -17,4 +18,12 @@ setuptools.setup(
 	include_package_data = True,
 	zip_safe = False,
 	install_requires = requires,
+	license = "The MIT License (http://www.opensource.org/licenses/mit-license.php)",
+	classifiers = [
+		'Development Status :: 4 - Beta',
+		'Framework :: Pyramid',
+		'Intended Audience :: Developers',
+		'License :: OSI Approved :: MIT License',
+		'Programming Language :: Python',
+	],
 )
