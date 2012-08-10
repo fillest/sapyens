@@ -1,6 +1,23 @@
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 from sapyens.helpers import get_by_id, raise_not_found
 from wtforms.ext import csrf
+import wtforms.widgets
+import wtforms
+
+
+def make_relation_field (model, *args):
+	class ItemWidget (unicode):
+		def all_objects (self):
+			return model.query.all()
+
+	class RelationField (wtforms.IntegerField):
+		widget = wtforms.widgets.HiddenInput()
+
+		def process_formdata (self, valuelist):
+			[id] = valuelist
+			self.data = model.query.get(id)
+
+	return wtforms.FieldList(RelationField(), *args, widget = ItemWidget('sapyens.crud:templates/relation.mako'))
 
 
 class SecureForm (csrf.SecureForm):

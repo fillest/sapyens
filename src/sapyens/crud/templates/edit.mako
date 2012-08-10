@@ -33,11 +33,15 @@
 					</ul>
 				% endif
 
-				% if not isinstance(field.widget, wtforms.widgets.HiddenInput):
-					${field.label}
-				% endif
+				% if isinstance(field.widget, basestring):
+					<%include file="${field.widget}" args="field = field" />
+				% else:
+					% if not isinstance(field.widget, wtforms.widgets.HiddenInput):
+						${field.label}
+					% endif
 
-				${field}
+					${field}
+				% endif
 			##</li>
 		% endfor
 	##</ul>
