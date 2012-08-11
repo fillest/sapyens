@@ -6,6 +6,7 @@
 * sapyens.helpers — various
 * sapyens.migrate — plain SQL migration
 * sapyens.script — console script base
+* sapyens.views — generic views
 
 ## License
 [The MIT License](http://www.opensource.org/licenses/mit-license.php)
