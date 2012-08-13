@@ -113,7 +113,16 @@ def make_classes (use_zope_ext = False):
 	class QueryPropertyMixin (object):
 		query = DBSession.query_property()
 
-	return DBSession, QueryPropertyMixin
+	class ScopedSessionMixin (object):
+		def add (self):
+			DBSession.add(self)
+			return self
+
+		def flush (self):
+			DBSession.flush()
+			return self
+
+	return DBSession, QueryPropertyMixin, ScopedSessionMixin
 
 
 def init (engine, DBSession, Reflected, on_before_reflect = None):
