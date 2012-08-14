@@ -90,6 +90,11 @@ class Reflected (DeclarativeReflectedBase, declarative_base()):
 		else:
 			raise NotFound()
 
+	def set (self, **fields):
+		for name, value in fields.items():
+			setattr(self, name, value)
+		return self
+
 
 def notfound_tween_factory (handler, _registry):
 	def tween (request):
