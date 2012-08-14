@@ -9,11 +9,9 @@
 ##TODO move to view
 <% flash_msgs = request.session.pop_flash() %>
 % if flash_msgs:
-	<ul>
-		% for msg in flash_msgs:
-			<li style="color: green;">${msg}</li>
-		% endfor
-	</ul>
+	% for msg in flash_msgs:
+		<div class="alert alert-success">${msg}</div>
+	% endfor
 % endif
 
 
