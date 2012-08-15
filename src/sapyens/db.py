@@ -4,8 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from sqlalchemy import Table
 from sqlalchemy.orm.util import _is_mapped_class
-from pyramid.httpexceptions import HTTPNotFound
 #NOTE conditional zope.sqlalchemy import in make_classes() below
+#NOTE pyramid.httpexceptions.HTTPNotFound import in notfound_tween_factory() below
 
 
 @contextmanager
@@ -97,6 +97,8 @@ class Reflected (DeclarativeReflectedBase, declarative_base()):
 
 
 def notfound_tween_factory (handler, _registry):
+	from pyramid.httpexceptions import HTTPNotFound
+
 	def tween (request):
 		try:
 			response = handler(request)
