@@ -129,6 +129,10 @@ def make_classes (use_zope_ext = False):
 			DBSession.flush()
 			return self
 
+		def commit (self):
+			DBSession.commit()
+			return self
+
 	return DBSession, QueryPropertyMixin, ScopedSessionMixin
 
 
