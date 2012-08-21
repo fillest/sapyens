@@ -142,8 +142,8 @@ def init (engine, DBSession, Reflected, on_before_reflect = None):
 	#DBObject.metadata.bind = engine
 	Reflected.metadata.bind = engine
 
-	if on_before_reflect:
-		on_before_reflect()
-
 	with engine_log_level(logging.WARN):
+		if on_before_reflect:
+			on_before_reflect()
+
 		Reflected.prepare(engine)
