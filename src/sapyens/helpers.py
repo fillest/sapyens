@@ -1,5 +1,7 @@
 import venusian
 from pyramid.httpexceptions import HTTPNotFound
+import os
+import time
 
 
 class add_route (object):
@@ -28,3 +30,8 @@ def get_by_id (class_, id):
 
 def raise_not_found ():
 	raise HTTPNotFound()
+
+
+def set_utc_timezone ():
+	os.environ['TZ'] = 'UTC'
+	time.tzset()
