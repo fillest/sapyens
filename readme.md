@@ -8,5 +8,19 @@
 * sapyens.script — console script base
 * sapyens.views — generic views
 
+## Setup
+PyPI package is available: [pypi.python.org/pypi/sapyens](http://pypi.python.org/pypi/sapyens)
+
+Assuming, you use [pip](http://www.pip-installer.org/) and [virtualenv](http://www.virtualenv.org/), to install latest released version:
+
+    pip install sapyens
+
+To install latest development version:
+
+    pip install git+https://github.com/fillest/sapyens.git
+
+## Issues
+Please submit bugs or any feedback to [issue tracker](https://github.com/fillest/sapyens/issues)
+
 ## License
-[The MIT License](http://www.opensource.org/licenses/mit-license.php)
+See licence.txt ([MIT License](http://www.opensource.org/licenses/mit-license.php))
