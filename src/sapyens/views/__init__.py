@@ -50,12 +50,14 @@ class LoginView (object):
 		}
 
 	def _decide_redirect_url (self, request):
-		redirect_url = request.POST.get('redirect_url')  #TODO check if not local?
+		redirect_url = request.POST.get('redirect_url')
 		if not redirect_url:
 			redirect_url = request.referer  #TODO can be not absolute?
 			if not redirect_url:
 				redirect_url = request.url
 				#TODO custom route? + natural /login hit
+		if not redirect_url.startswith(request.application_url):
+			redirect_url = request.application_url
 		return redirect_url
 
 	def _check_password (self, username, password, request):
