@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden
 import pyramid.security
 import operator
 
@@ -24,9 +24,9 @@ class LoginView (object):
 		self._get_real_password = get_real_password
 		self._compare_passwords = compare_passwords
 
-	def __call__ (self, request):
+	def __call__ (self, context, request):
 		#TODO csrf?
-		redirect_url = self._decide_redirect_url(request)
+		redirect_url = self._decide_redirect_url(request, isinstance(context, HTTPForbidden))
 
 		if request.method.upper() == 'POST':
 			username, password = self._try_parse_input(request)
@@ -49,13 +49,16 @@ class LoginView (object):
 			'password': password,
 		}
 
-	def _decide_redirect_url (self, request):
+	def _decide_redirect_url (self, request, is_on_forbidden):
 		redirect_url = request.POST.get('redirect_url')
 		if not redirect_url:
-			redirect_url = request.referer  #TODO can be not absolute?
-			if not redirect_url:
+			if is_on_forbidden:
 				redirect_url = request.url
-				#TODO custom route? + natural /login hit
+			else:
+				redirect_url = request.referer  #TODO can be not absolute?
+				if not redirect_url:
+					redirect_url = request.url
+					#TODO custom route? + natural /login hit
 		if not redirect_url.startswith(request.application_url):
 			redirect_url = request.application_url
 		return redirect_url
