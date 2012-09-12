@@ -19,6 +19,9 @@ To install latest development version:
 
     pip install git+https://github.com/fillest/sapyens.git
 
+## Docs
+[github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
+
 ## Issues
 Please submit bugs or any feedback to [issue tracker](https://github.com/fillest/sapyens/issues)
 
