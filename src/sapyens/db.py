@@ -1,5 +1,6 @@
 import logging
 from contextlib import contextmanager
+import collections
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from sqlalchemy import Table
@@ -137,7 +138,9 @@ def make_classes (use_zope_ext = False):
 			DBSession.commit()
 			return self
 
-	return DBSession, QueryPropertyMixin, ScopedSessionMixin
+	return collections.namedtuple('Classes', ('DBSession', 'QueryPropertyMixin', 'ScopedSessionMixin'))(
+		DBSession, QueryPropertyMixin, ScopedSessionMixin
+	)
 
 
 def init (engine, DBSession, Reflected, on_before_reflect = None):
