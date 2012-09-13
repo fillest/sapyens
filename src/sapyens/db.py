@@ -80,7 +80,11 @@ class Reflected (DeclarativeReflectedBase, declarative_base()):
 	__abstract__ = True
 
 	def __repr__ (self):
-		return u"<{0}.{1} #{2}>".format(self.__class__.__module__, self.__class__.__name__, self.id)
+		return u"<{module}.{class_name} #{id}>".format(
+			module = self.__class__.__module__,
+			class_name = self.__class__.__name__,
+			id = self.id,
+		)
 
 	@classmethod
 	def try_get (cls, **kwargs):
@@ -113,8 +117,8 @@ def make_classes (use_zope_ext = False):
 	if use_zope_ext:
 		from zope.sqlalchemy import ZopeTransactionExtension
 
-	DBSession = scoped_session(sessionmaker(extension =
-		ZopeTransactionExtension() if use_zope_ext else None
+	DBSession = scoped_session(sessionmaker(
+		extension = ZopeTransactionExtension() if use_zope_ext else None
 	))
 
 	class QueryPropertyMixin (object):
