@@ -7,6 +7,7 @@ import sqlalchemy.exc
 import glob
 import os.path
 import logging
+import re
 
 
 MIGRATION_TABLE_SQL = """
@@ -23,22 +24,27 @@ DEFAULT_MIGRATION_TABLE_NAME = 'migrations'
 
 def _make_entry_point_function (get_migration_dir_path, get_migration_table_name):
 	def run ():
-		opts = _parse_args()
+		args = _parse_args()
 
-		pyramid.paster.setup_logging(opts.config)
+		pyramid.paster.setup_logging(args.config)
 		log = logging.getLogger(__name__)
 
-		settings = pyramid.paster.get_appsettings(opts.config)
+		settings = pyramid.paster.get_appsettings(args.config)
 		db_session = sessionmaker(bind = engine_from_config(settings, 'sqlalchemy.'))()
 		path = get_migration_dir_path(settings)
 		_check_migration_dir(path)
 		table_name = get_migration_table_name(settings)
 
-		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
 		avail_ids = set(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(path + '/*.sql'))
+
+		if args.create_next:
+			return _create_next_migration_file(avail_ids, args.create_next, path, log)
+
+		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
+		
 		pending_ids = sorted(avail_ids - applied_ids)
 
-		_apply_migrations(pending_ids, path, table_name, db_session, log, opts.force_write)
+		_apply_migrations(pending_ids, path, table_name, db_session, log, args.force_write)
 	return run
 
 run = _make_entry_point_function(
@@ -51,6 +57,21 @@ def make_entry_point (migration_dir, migration_table_name = DEFAULT_MIGRATION_TA
 	return _make_entry_point_function(lambda _s: migration_dir, lambda _s: migration_table_name)
 
 
+def _create_next_migration_file (avail_ids, name, path, log):
+	if avail_ids:
+		last = sorted(avail_ids)[-1]
+		match = re.match(r'^(\d+)', last).group(1)
+		i_len = len(match)
+		next_i = int(match) + 1
+	else:
+		next_i = 1
+		i_len = len('000%s' % next_i)
+	
+	path = "%s/%s_%s.sql" % (path, str(next_i).zfill(i_len), name.replace(" ", "_"))
+	log.info("Creating file " + path)
+	os.close(os.open(path, os.O_CREAT | os.O_EXCL))
+
+
 def _check_migration_dir (path):
 	if not os.path.isdir(path):
 		raise ValueError(u"specified path is not valid dir path: %s" % path)
@@ -60,6 +81,8 @@ def _parse_args ():
 	parser.add_argument('config', help = "config file")
 	parser.add_argument('-fw', '--force-write', nargs = '*', metavar = 'MIGRATION_FILE_PATH',
 		help = "write migration records to DB without applying their content", default = [])
+	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
+		help = "create next migration file and terminate")
 	return parser.parse_args()
 
 def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
