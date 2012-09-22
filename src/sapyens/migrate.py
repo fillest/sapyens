@@ -8,6 +8,7 @@ import glob
 import os.path
 import logging
 import re
+import sys
 
 
 MIGRATION_TABLE_SQL = """
@@ -20,6 +21,8 @@ MIGRATION_TABLE_SQL = """
 """
 
 DEFAULT_MIGRATION_TABLE_NAME = 'migrations'
+
+RE_ID_N = re.compile(r'^(\d+)')
 
 
 def _make_entry_point_function (get_migration_dir_path, get_migration_table_name):
@@ -35,15 +38,17 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 		_assert_migration_dir_exists(path)
 		table_name = get_migration_table_name(settings)
 
-		avail_ids = set(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(path + '/*.sql'))
+		avail_paths = set(glob.glob(path + '/*.sql'))
+		avail_ids = set(map(_path_to_id, avail_paths))
 
 		if args.create_next:
 			return _create_next_migration_file(avail_ids, args.create_next, path, log)
 
 		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
 		pending_ids = sorted(avail_ids - applied_ids)
+		ids_to_force_write = set(_try_process_force_write(args.force_write, avail_paths, log))
 
-		_apply_migrations(pending_ids, path, table_name, db_session, log, set(_paths_to_ids(args.force_write, path)))
+		_apply_migrations(pending_ids, path, table_name, db_session, log, ids_to_force_write)
 	return run
 
 run = _make_entry_point_function(
@@ -59,7 +64,7 @@ def make_entry_point (migration_dir, migration_table_name = DEFAULT_MIGRATION_TA
 def _create_next_migration_file (avail_ids, name, path, log):
 	if avail_ids:
 		last = sorted(avail_ids)[-1]
-		match = re.match(r'^(\d+)', last).group(1)
+		match = RE_ID_N.match(last).group(1)
 		i_len = len(match)
 		next_i = int(match) + 1
 	else:
@@ -78,7 +83,7 @@ def _assert_migration_dir_exists (path):
 def _parse_args ():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('config', help = "config file")
-	parser.add_argument('-fw', '--force-write', nargs = '*', metavar = 'MIGRATION_FILE_PATH',
+	parser.add_argument('-fw', '--force-write', nargs = '*', metavar = 'MIGRATION_INDEX_OR_FILE_PATH',
 		help = "write migration records to DB without applying their content", default = [])
 	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
 		help = "create next migration file and terminate")
@@ -112,13 +117,33 @@ def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log
 				})
 		db_session.commit()
 
-def _paths_to_ids (paths, migration_dir):
-	for path in paths:
-		migration_id, _ext = os.path.splitext(os.path.basename(path))
-		p = _sql_fpath(migration_dir, migration_id)
-		if not os.path.isfile(p):
-			raise ValueError(path)
-		yield migration_id
-
 def _sql_fpath (dir_path, migration_id):
 	return '%s/%s.sql' % (dir_path, migration_id)
+
+def _path_to_id (path):
+	migration_id, _ext = os.path.splitext(os.path.basename(path))
+	return migration_id
+
+def _try_process_force_write (input_migrations, avail_paths, log):
+	def raise_invalid (m):
+		raise ValueError(u"Invalid migration index or path: %s" % m)
+
+	for m in input_migrations:
+		if m in avail_paths:
+			yield _path_to_id(m)
+		else:
+			if m.isdigit():
+				def match_index (path, m=m):
+					return int(RE_ID_N.match(_path_to_id(path)).group(1)) == int(m)
+				paths = filter(match_index, avail_paths)
+
+				if paths:
+					if len(paths) == 1:
+						yield _path_to_id(paths[0])
+					else:
+						log.error('Ambiguous migration index "%s". Pass full path instead:\n\t%s' % (m, "\n\t".join(paths)))
+						sys.exit(1)
+				else:
+					raise_invalid(m)
+			else:
+				raise_invalid(m)
