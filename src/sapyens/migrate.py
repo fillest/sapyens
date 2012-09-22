@@ -27,12 +27,12 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 		args = _parse_args()
 
 		pyramid.paster.setup_logging(args.config)
-		log = logging.getLogger(__name__)
-
+		log = logging.getLogger(__name__) #TODO move to module-level?
 		settings = pyramid.paster.get_appsettings(args.config)
 		db_session = sessionmaker(bind = engine_from_config(settings, 'sqlalchemy.'))()
+
 		path = get_migration_dir_path(settings)
-		_check_migration_dir(path)
+		_assert_migration_dir_exists(path)
 		table_name = get_migration_table_name(settings)
 
 		avail_ids = set(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(path + '/*.sql'))
@@ -41,10 +41,9 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 			return _create_next_migration_file(avail_ids, args.create_next, path, log)
 
 		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
-		
 		pending_ids = sorted(avail_ids - applied_ids)
 
-		_apply_migrations(pending_ids, path, table_name, db_session, log, args.force_write)
+		_apply_migrations(pending_ids, path, table_name, db_session, log, set(_paths_to_ids(args.force_write, path)))
 	return run
 
 run = _make_entry_point_function(
@@ -53,7 +52,7 @@ run = _make_entry_point_function(
 )
 
 def make_entry_point (migration_dir, migration_table_name = DEFAULT_MIGRATION_TABLE_NAME):
-	_check_migration_dir(migration_dir)
+	_assert_migration_dir_exists(migration_dir)
 	return _make_entry_point_function(lambda _s: migration_dir, lambda _s: migration_table_name)
 
 
@@ -67,12 +66,12 @@ def _create_next_migration_file (avail_ids, name, path, log):
 		next_i = 1
 		i_len = len('000%s' % next_i)
 	
-	path = "%s/%s_%s.sql" % (path, str(next_i).zfill(i_len), name.replace(" ", "_"))
+	path = '%s/%s_%s.sql' % (path, str(next_i).zfill(i_len), name.replace(" ", "_"))
 	log.info("Creating file " + path)
 	os.close(os.open(path, os.O_CREAT | os.O_EXCL))
 
 
-def _check_migration_dir (path):
+def _assert_migration_dir_exists (path):
 	if not os.path.isdir(path):
 		raise ValueError(u"specified path is not valid dir path: %s" % path)
 
@@ -100,15 +99,15 @@ def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
 			raise
 	return applied_ids
 
-def _apply_migrations (migration_ids, migration_dir, migration_table_name, db_session, log, migrations_to_force_write):
+def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log, migration_ids_to_force_write):
 	if migration_ids:
 		for migration_id in migration_ids:
-			fpath = _migration_path(migration_dir, migration_id)
-			log.info("Applying migration " + fpath)
-			with open(fpath, 'rb') as f:
-				if migration_id not in _paths_to_ids(migrations_to_force_write, migration_dir):
+			sql_fpath = _sql_fpath(migration_dir, migration_id)
+			log.info("Applying migration " + sql_fpath)
+			with open(sql_fpath, 'rb') as f:
+				if migration_id not in migration_ids_to_force_write:
 					db_session.execute(f.read())
-				db_session.execute('INSERT INTO %s (id) VALUES (:id)' % migration_table_name, {
+				db_session.execute('INSERT INTO %s (id) VALUES (:id)' % table_name, {
 					'id': migration_id,
 				})
 		db_session.commit()
@@ -116,10 +115,10 @@ def _apply_migrations (migration_ids, migration_dir, migration_table_name, db_se
 def _paths_to_ids (paths, migration_dir):
 	for path in paths:
 		migration_id, _ext = os.path.splitext(os.path.basename(path))
-		p = _migration_path(migration_dir, migration_id)
+		p = _sql_fpath(migration_dir, migration_id)
 		if not os.path.isfile(p):
 			raise ValueError(path)
 		yield migration_id
 
-def _migration_path (dir_path, migration_id):
-	return dir_path + '/%s.sql' % migration_id
+def _sql_fpath (dir_path, migration_id):
+	return '%s/%s.sql' % (dir_path, migration_id)
