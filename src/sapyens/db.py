@@ -130,6 +130,10 @@ def make_classes (use_zope_ext = False):
 			DBSession.add(self)
 			return self
 
+		def delete (self):
+			DBSession.delete(self)
+			return self
+
 		def flush (self):
 			DBSession.flush()
 			return self
