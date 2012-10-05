@@ -114,7 +114,7 @@ def notfound_tween_factory (handler, _registry):
 	return tween
 
 
-def make_classes (use_zope_ext = False):
+def make_classes (use_zope_ext = True):
 	if use_zope_ext:
 		from zope.sqlalchemy import ZopeTransactionExtension
 
