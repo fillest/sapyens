@@ -5,10 +5,17 @@ import wtforms.widgets
 import wtforms
 
 
-def make_relation_field (model, *args):
+def make_relation_field (model, *args, **kwargs):
 	class ItemWidget (unicode):
 		def all_objects (self):
 			return model.query.all()
+
+		def object_title (self, obj):
+			object_title_attr = kwargs.get('object_title_attr')
+			if object_title_attr:
+				return getattr(obj, object_title_attr)
+			else:
+				return getattr(obj, 'title', unicode(obj))
 
 	class RelationField (wtforms.IntegerField):
 		widget = wtforms.widgets.HiddenInput()

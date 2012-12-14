@@ -44,7 +44,7 @@
 
 		% for subfield in field:
 			##TODO escape quotes
-			${add_relation_item_func_name}(${subfield.data.id}, "${subfield.data.title}");
+			${add_relation_item_func_name}(${subfield.data.id}, "${field.widget.object_title(subfield.data)}");
 		% endfor
 	});
 </script>
@@ -70,7 +70,7 @@
 			<ul>
 				% for obj in field.widget.all_objects():
 					<li>
-						<a href="#" onclick="return ${add_relation_item_func_name}(${obj.id}, '${obj.title}');">${obj.title}</a>
+						<a href="#" onclick="return ${add_relation_item_func_name}(${obj.id}, '${field.widget.object_title(obj)}');">${field.widget.object_title(obj)}</a>
 					</li>
 				% endfor
 			</ul>
