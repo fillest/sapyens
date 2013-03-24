@@ -157,4 +157,8 @@ def init (engine, DBSession, Reflected, on_before_reflect = None):
 		if on_before_reflect:
 			on_before_reflect()
 
+		# if you for example use some table as relationship secondary parameter and the table is not
+		# reflected yet, you will get an error, so reflect in advance:
+		Reflected.metadata.reflect()
+		
 		Reflected.prepare(engine)
