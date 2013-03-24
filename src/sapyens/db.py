@@ -147,13 +147,15 @@ def make_classes (use_zope_ext = True):
 	)
 
 
-def init (engine, DBSession, Reflected, on_before_reflect = None):
-	DBSession.configure(bind = engine)
-
-	#DBObject.metadata.bind = engine
+def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_reflect = None):
 	Reflected.metadata.bind = engine
 
+	DBSession.configure(bind = engine)
+
 	with engine_log_level(logging.WARN):
+		if import_before_reflect:
+			__import__(import_before_reflect)
+			
 		if on_before_reflect:
 			on_before_reflect()
 
