@@ -1,0 +1,10 @@
+import sapyens.db
+
+
+DBSession, QueryPropertyMixin, ScopedSessionMixin = sapyens.db.make_classes(use_zope_ext = True)
+
+class Model (sapyens.db.Reflected, QueryPropertyMixin, ScopedSessionMixin):
+    __abstract__ = True
+
+def init (engine):
+	sapyens.db.init(engine, DBSession, Model, import_before_reflect = '{{package}}.db.models')

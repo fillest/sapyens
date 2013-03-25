@@ -1,0 +1,13 @@
+#coding: utf-8
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden
+from pyramid.view import view_config
+# from {{package}}.db.models import MyModel
+from sapyens.helpers import raise_not_found, get_by_id, add_route
+
+
+@add_route('root', '/')
+@view_config(route_name = 'root', renderer = '/test.mako')
+def test (request):
+	# print MyModel.query.all()
+	return {
+	}

@@ -26,4 +26,8 @@ setuptools.setup(
 		'License :: OSI Approved :: MIT License',
 		'Programming Language :: Python',
 	],
+	entry_points = """\
+		[pyramid.scaffold]
+			sapyens=sapyens.scaffolds:SapyensTemplate
+	"""
 )

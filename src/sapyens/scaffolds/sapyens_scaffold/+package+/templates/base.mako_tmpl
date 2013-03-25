@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+
+		<title>
+			{{project}}: <%block name="title">untitled</%block>
+		</title>
+
+		<link rel="stylesheet" href="..." charset="UTF-8" />
+
+		<%block name="links"></%block>
+
+		<script src="..." type="text/javascript" charset="UTF-8"></script>
+	</head>
+	<body>
+		<div style="text-align: right;">
+			%if authenticated_userid(request):
+				<a href="${request.route_path('logout')}">Logout</a>
+			%endif
+		</div>
+
+		${next.body()}
+	</body>
+</html>

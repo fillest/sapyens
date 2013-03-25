@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+#set -x
+
+
+if [ "$#" -ne 1 ]
+then
+	echo "usage error: provide config as parameter"
+	exit 1
+fi
+
+
+patterns="*.py;*.ini"
+
+sapyens_path="../sapyens"
+if [ -d "$sapyens_path" ]; then
+	extra_dirs=--directory\ "$sapyens_path"
+fi
+
+ignore_patterns=--ignore-patterns\ "venv"
+
+
+watchmedo auto-restart \
+	--recursive \
+	--patterns $patterns \
+	--directory . \
+	$extra_dirs \
+	$ignore_patterns \
+	pserve -- "$@"

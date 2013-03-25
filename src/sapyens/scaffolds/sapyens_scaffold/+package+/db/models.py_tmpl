@@ -1,0 +1,11 @@
+#coding: utf8
+from {{package}}.db import Model
+from sqlalchemy.orm import relationship
+
+
+# class YourModel (Model):
+# 	__tablename__ = 'your_table'
+
+# class YourModel1 (Model):
+# 	__tablename__ = 'your_table1'
+# 	your_models = relationship('YourModel', secondary = 'your__table')
