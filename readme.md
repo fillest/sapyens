@@ -6,7 +6,7 @@
 * sapyens.helpers — various
 * sapyens.migrate — plain SQL migration
 * sapyens.script — console script base
-* sapyens.views — various generic views (log in/out, Facebook auth)
+* sapyens.views — generic views (log in/out, Facebook auth)
 
 ## Setup
 PyPI package is available: [pypi.python.org/pypi/sapyens](http://pypi.python.org/pypi/sapyens)
