@@ -6,7 +6,7 @@
 * sapyens.helpers — various
 * sapyens.migrate — plain SQL migration
 * sapyens.script — console script base
-* sapyens.views — generic views
+* sapyens.views — various generic views (log in/out, Facebook auth)
 
 ## Setup
 PyPI package is available: [pypi.python.org/pypi/sapyens](http://pypi.python.org/pypi/sapyens)
@@ -23,7 +23,7 @@ To install latest development version:
 [github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
 
 ## Issues
-Please submit bugs or any feedback to [issue tracker](https://github.com/fillest/sapyens/issues)
+Please submit any bugs or feedback to [issue tracker](https://github.com/fillest/sapyens/issues)
 
 ## License
-See licence.txt ([MIT License](http://www.opensource.org/licenses/mit-license.php))
+See licence.txt ([The MIT License](http://www.opensource.org/licenses/mit-license.php))
