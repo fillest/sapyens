@@ -135,10 +135,11 @@ def init_setattr_check (Reflected):
 		def __init__ (self, *args, **kwargs):
 			Reflected.__skip_setattr_check = True
 			orig_init(self, *args, **kwargs)
-			if '__skip_setattr_check' in Reflected.__dict__:  #TODO sometimes it's already gone
-				del Reflected.__skip_setattr_check
+			del Reflected.__skip_setattr_check
 		cls.__init__ = __init__
 
 		obj = orig_new(cls, *args, **kwargs)
+		cls.__init__ = orig_init
+
 		return obj
 	Reflected.__new__ = staticmethod(__new__)
