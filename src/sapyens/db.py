@@ -99,13 +99,13 @@ def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_
 
 	DBSession.configure(bind = engine)
 
-	with engine_log_level(logging.WARN):
-		if import_before_reflect:
-			__import__(import_before_reflect)
-			
-		if on_before_reflect:
-			on_before_reflect()
+	if import_before_reflect:
+		__import__(import_before_reflect)
 
+	if on_before_reflect:
+		on_before_reflect()
+
+	with engine_log_level(logging.WARN):
 		# if you for example use some table as relationship secondary parameter and the table is not
 		# reflected yet, you will get an error, so reflect in advance:
 		Reflected.metadata.reflect()
