@@ -135,7 +135,8 @@ def init_setattr_check (Reflected):
 		def __init__ (self, *args, **kwargs):
 			Reflected.__skip_setattr_check = True
 			orig_init(self, *args, **kwargs)
-			del Reflected.__skip_setattr_check
+			if '__skip_setattr_check' in Reflected.__dict__:  #TODO sometimes it's already gone
+				del Reflected.__skip_setattr_check
 		cls.__init__ = __init__
 
 		obj = orig_new(cls, *args, **kwargs)
