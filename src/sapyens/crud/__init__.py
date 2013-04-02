@@ -172,10 +172,12 @@ class DeleteView (CrudView):
 		config.add_route(self.route_name, self.route_path)
 		config.add_view(self, route_name = self.route_name, permission = self.permission)
 
-
 class Crud (object):
+	_registered_cruds = []
+
 	model = None
 	form = None
+	title = None
 
 	new = None
 	edit = None
@@ -186,9 +188,18 @@ class Crud (object):
 
 	@classmethod
 	def include_to_config (cls, config):
+		cls._registered_cruds.append(cls)
+
 		for view_class in (cls.new, cls.edit, cls.create, cls.update, cls.list, cls.delete):
 			view_class(cls.model, cls.form).include_to_config(config)
 
+	@classmethod
+	def get_title (cls):
+		return cls.title or cls.__name__
+
+class IndexView (object):
+	def __call__ (self, request):
+		return {'cruds': Crud._registered_cruds}
 
 def make_view_classes (pathname, db_session_, permission_ = 'admin',
 		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True):
