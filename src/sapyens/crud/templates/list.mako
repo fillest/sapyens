@@ -12,5 +12,5 @@
 		% endfor
 	</ul>
 % else:
-	No objects found.
+	<p>No objects found.</p>
 % endif
