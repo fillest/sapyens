@@ -140,10 +140,18 @@ class NewView (EditView):
 
 class ListView (CrudView):
 	edit_route = None
-	edit_title = lambda _self, obj: obj
 	new_route = None
 	delete_route = None
 	page_title = None
+
+	def get_obj_title (self, obj):
+		for name in ('title', 'name', 'email'):
+			value = getattr(obj, name, None)
+			if value:
+				return value
+		return repr(obj)
+
+	edit_title = get_obj_title
 
 	def __call__ (self, request):
 		models = self._model.query.order_by(self._model.id.desc()).all()
