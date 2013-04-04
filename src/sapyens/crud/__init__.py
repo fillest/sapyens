@@ -3,7 +3,52 @@ from sapyens.helpers import get_by_id, raise_not_found
 from wtforms.ext import csrf
 import wtforms.widgets
 import wtforms
+import wtforms as w
+import wtforms.validators as v
+from sqlalchemy.orm import scoped_session, sessionmaker, class_mapper, ColumnProperty, RelationshipProperty
+import sqlalchemy.types
+import logging
 
+
+log = logging.getLogger(__name__)
+
+
+class SecureForm (csrf.SecureForm):
+	def generate_csrf_token (self, request):
+		return request.session.get_csrf_token()
+
+	def validate_csrf_token (self, field):
+		if field.current_token != field.data:
+			raise HTTPForbidden()
+
+prop_to_field = {
+	sqlalchemy.types.TEXT: (w.TextField, [v.Length(min = 1, max = 254)]),
+	sqlalchemy.types.BOOLEAN: (w.BooleanField, []),
+}
+
+def make_form (model_class, form_base_class = SecureForm):
+	class Form (form_base_class):
+		pass
+
+	for prop in class_mapper(model_class).iterate_properties:
+		# print type(prop)
+		# print dir(prop)
+		if isinstance(prop, ColumnProperty):
+			if len(prop.columns) > 1:
+				log.warning("prop '%s' has > 1 columns, skipping" % prop)
+			else:
+				[column] = prop.columns
+				if not column.primary_key:
+					field_class, validators = prop_to_field.get(type(column.type), prop_to_field[sqlalchemy.types.TEXT])
+
+					name = prop.key
+					setattr(Form, name, field_class(name.capitalize(), [v.Required()] + validators))
+		elif isinstance(prop, RelationshipProperty):
+			#http://stackoverflow.com/questions/3805712/what-type-is-on-the-other-end-of-relation-in-sqlalchemy-without-creating-objects
+			#https://groups.google.com/forum/?fromgroups=#!topic/sqlalchemy/z5fS-3Rwkfs
+			pass
+	
+	return Form
 
 def make_relation_field (model, *args, **kwargs):
 	class ItemWidget (unicode):
@@ -25,16 +70,6 @@ def make_relation_field (model, *args, **kwargs):
 			self.data = model.query.get(id)
 
 	return wtforms.FieldList(RelationField(), *args, widget = ItemWidget('sapyens.crud:templates/relation.mako'))
-
-
-class SecureForm (csrf.SecureForm):
-	def generate_csrf_token (self, request):
-		return request.session.get_csrf_token()
-
-	def validate_csrf_token (self, field):
-		if field.current_token != field.data:
-			raise HTTPForbidden()
-
 
 class CrudView (object):
 	renderer = None
