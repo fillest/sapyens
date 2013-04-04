@@ -21,10 +21,18 @@ class SecureForm (csrf.SecureForm):
 		if field.current_token != field.data:
 			raise HTTPForbidden()
 
-prop_to_field = {
-	sqlalchemy.types.TEXT: (w.TextField, [v.Length(min = 1, max = 254)]),
-	sqlalchemy.types.BOOLEAN: (w.BooleanField, []),
+
+_default_sqla_t = sqlalchemy.types.String
+sqla_t_to_field = {
+	_default_sqla_t:          (w.TextField, [v.Length(min = 1, max = 254)]),
+	sqlalchemy.types.Boolean: (w.BooleanField, []),
 }
+
+def _coltype_to_field (coltype):
+	for sqla_t, v in sqla_t_to_field.items():
+		if isinstance(coltype, sqla_t):
+			return v
+	return sqla_t_to_field[_default_sqla_t]
 
 def make_form (model_class, form_base_class = SecureForm):
 	class Form (form_base_class):
@@ -39,7 +47,7 @@ def make_form (model_class, form_base_class = SecureForm):
 			else:
 				[column] = prop.columns
 				if not column.primary_key:
-					field_class, validators = prop_to_field.get(type(column.type), prop_to_field[sqlalchemy.types.TEXT])
+					field_class, validators = _coltype_to_field(column.type)
 
 					name = prop.key
 					setattr(Form, name, field_class(name.capitalize(), [v.Required()] + validators))
@@ -49,6 +57,7 @@ def make_form (model_class, form_base_class = SecureForm):
 			pass
 	
 	return Form
+
 
 def make_relation_field (model, *args, **kwargs):
 	class ItemWidget (unicode):
