@@ -69,7 +69,7 @@ class SubmitView (CrudView):
 			self.db_session.add(model)
 			self.db_session.flush()
 
-			request.session.flash('successfully updated')
+			request.session.flash('Successfully saved')
 
 			return HTTPFound(location = request.route_url(self.redirect_route, id = model.id))
 		else:
