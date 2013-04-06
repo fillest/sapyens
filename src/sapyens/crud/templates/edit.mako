@@ -44,5 +44,5 @@
 		% endfor
 	##</ul>
 
-	<input type="submit" value="save" />
+	<div><input type="submit" value="save" /></div>
 </form>
