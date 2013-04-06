@@ -2,7 +2,7 @@ import logging
 from contextlib import contextmanager
 import collections
 from sqlalchemy.ext.declarative import declarative_base, DeferredReflection
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, class_mapper
 #NOTE conditional zope.sqlalchemy import in make_classes() below
 #NOTE pyramid.httpexceptions.HTTPNotFound import in notfound_tween_factory() below
 
@@ -96,21 +96,53 @@ def make_classes (use_zope_ext = True):
 		DBSession, QueryPropertyMixin, ScopedSessionMixin
 	)
 
-
-def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_reflect = None):
+def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_reflect = None, enable_setattr_check = False):
 	Reflected.metadata.bind = engine
 
 	DBSession.configure(bind = engine)
 
-	with engine_log_level(logging.WARN):
-		if import_before_reflect:
-			__import__(import_before_reflect)
-			
-		if on_before_reflect:
-			on_before_reflect()
+	if import_before_reflect:
+		__import__(import_before_reflect)
 
+	if on_before_reflect:
+		on_before_reflect()
+
+	with engine_log_level(logging.WARN):
 		# if you for example use some table as relationship secondary parameter and the table is not
 		# reflected yet, you will get an error, so reflect in advance:
 		Reflected.metadata.reflect()
 		
 		Reflected.prepare(engine)
+
+	if enable_setattr_check:
+		init_setattr_check(Reflected)
+
+
+class SetattrCheckError (Exception):
+	pass
+
+def init_setattr_check (Reflected):
+	def __setattr__ (self, name, value):
+		skip_check = getattr(Reflected, '__skip_setattr_check', False)
+		if name != '_sa_instance_state' and not skip_check:
+			is_name_ok = any(name == prop.key for prop in class_mapper(self.__class__).iterate_properties)
+			if not is_name_ok:
+				raise SetattrCheckError("Attempt to set a property that is not registered with "
+					"the mapper (did you make a typo?): %s" % name)
+		super(Reflected, self).__setattr__(name, value)
+	Reflected.__setattr__ = __setattr__
+
+	orig_new = Reflected.__new__
+	def __new__ (cls, *args, **kwargs):
+		orig_init = cls.__init__
+		def __init__ (self, *args, **kwargs):
+			Reflected.__skip_setattr_check = True
+			orig_init(self, *args, **kwargs)
+			del Reflected.__skip_setattr_check
+		cls.__init__ = __init__
+
+		obj = orig_new(cls, *args, **kwargs)
+		cls.__init__ = orig_init
+
+		return obj
+	Reflected.__new__ = staticmethod(__new__)
