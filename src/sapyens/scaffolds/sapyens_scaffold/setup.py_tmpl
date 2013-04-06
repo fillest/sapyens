@@ -16,6 +16,7 @@ requires = [
     'waitress',
     'watchdog',
     'psycopg2',
+    'wtforms',
 ]
 
 

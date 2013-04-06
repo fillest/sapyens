@@ -2,11 +2,10 @@
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 from pyramid.view import view_config
 # from {{package}}.db.models import MyModel
-from sapyens.helpers import raise_not_found, get_by_id, add_route
+from sapyens.helpers import raise_not_found, get_by_id, add_route, route_view_config
 
 
-@add_route('root', '/')
-@view_config(route_name = 'root', renderer = '/test.mako')
+@route_view_config('/', 'root', renderer = '/test.mako')
 def test (request):
 	# print MyModel.query.all()
 	return {

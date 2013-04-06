@@ -7,11 +7,11 @@
 			{{project}}: <%block name="title">untitled</%block>
 		</title>
 
-		<link rel="stylesheet" href="..." charset="UTF-8" />
+		## <link rel="stylesheet" href="..." charset="UTF-8" />
 
 		<%block name="links"></%block>
 
-		<script src="..." type="text/javascript" charset="UTF-8"></script>
+		## <script src="..." type="text/javascript" charset="UTF-8"></script>
 	</head>
 	<body>
 		<div style="text-align: right;">
