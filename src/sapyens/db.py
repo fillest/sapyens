@@ -35,7 +35,10 @@ class Reflected (Base):
 		)
 
 	@classmethod
-	def try_get (cls, **kwargs):
+	def try_get (cls, id = None, **kwargs):
+		if id:
+			kwargs['id'] = id
+			
 		obj = cls.query.filter_by(**kwargs).first()
 		if obj:
 			return obj
