@@ -7,7 +7,7 @@ requires = [
 
 setuptools.setup(
 	name = 'sapyens',
-	version = '0.1.8',
+	version = '0.2.0',
 	description = 'SQLAlchemy & Pyramid enhancements',
 	long_description = 'SQLAlchemy & Pyramid enhancements',
 	author = 'Philipp Saveliev',

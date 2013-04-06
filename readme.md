@@ -1,21 +1,19 @@
 # Sapyens — SQLAlchemy & Pyramid enhancements
 
-## Features
+## Overview
 * sapyens.crud — customizable generic views and templates for CRUD building
-* sapyens.db — SQLAlchemy helpers (initialisation, base classes, etc.)
-* sapyens.helpers — various
-* sapyens.migrate — plain SQL migration
+* sapyens.db — SQLAlchemy helpers (initialization, base classes, etc.)
+* sapyens.helpers — various helpers
+* sapyens.migrate — plain SQL migration management
 * sapyens.script — console script base
-* sapyens.views — generic views (log in/out, Facebook auth)
+* sapyens.views — other generic views
 
 ## Setup
-PyPI package is available: [pypi.python.org/pypi/sapyens](http://pypi.python.org/pypi/sapyens)
-
-Assuming, you use [pip](http://www.pip-installer.org/) and [virtualenv](http://www.virtualenv.org/), to install latest released version:
+To install latest released version (from [PyPI repository](http://pypi.python.org/pypi/sapyens)):
 
     pip install sapyens
 
-To install latest development version:
+To install development version:
 
     pip install git+https://github.com/fillest/sapyens.git
 
@@ -23,7 +21,7 @@ To install latest development version:
 [github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
 
 ## Issues
-Please submit any bugs or feedback to [issue tracker](https://github.com/fillest/sapyens/issues)
+Please submit any bugs or feedback to [the issue tracker](https://github.com/fillest/sapyens/issues)
 
 ## License
-See licence.txt ([The MIT License](http://www.opensource.org/licenses/mit-license.php))
+See license.txt ([The MIT License](http://www.opensource.org/licenses/mit-license.php))
