@@ -3,7 +3,14 @@
 %>
 
 
-<a href="${request.route_path(list_route)}">list</a>
+<style type="text/css">
+	.sapyens-crud-form input {width: 700px;}
+</style>
+
+
+<div>
+	<a href="${request.route_path(list_route)}">View list</a>
+</div>
 
 
 ##TODO move to view
@@ -14,35 +21,45 @@
 	% endfor
 % endif
 
+<form action="${submit_path}" method="post" class="sapyens-crud-form form-horizontal">
+	<fieldset>
+		<legend>${page_title}</legend>
 
-<form action="${submit_path}" method="post">
-	##%if not caster.is_valid:
-	##	<strong>invalid</strong> ${caster.errors}
-	##%endif
-
-	##<ul>
 		% for field in form:
-			##<li>
-				% if field.errors:
-					<ul>
-						% for error in field.errors:
-							<li style="color: red;">${error}</li>
-						% endfor
-					</ul>
-				% endif
+			% if isinstance(field.widget, wtforms.widgets.HiddenInput):
+				${field}
+			% else:
+				<div class="control-group ${'error' if field.errors else ''}">
+					% if isinstance(field.widget, basestring):
+						##TODO move errors to include somehow?
+						% if field.errors:
+							<ul>
+								% for error in field.errors:
+									<li style="color: red;">${error}</li>
+								% endfor
+							</ul>
+						% endif
 
-				% if isinstance(field.widget, basestring):
-					<%include file="${field.widget}" args="field = field" />
-				% else:
-					% if not isinstance(field.widget, wtforms.widgets.HiddenInput):
-						${field.label}
+						<%include file="${field.widget}" args="field = field" />
+					% else:
+						${field.label(class_ = 'control-label')}
+						
+						<div class="controls">
+							${field}
+
+							% if field.errors:
+								% for error in field.errors:
+									<span class="help-block">${error}</span>
+								% endfor
+							% endif
+						</div>
 					% endif
-
-					${field}
-				% endif
-			##</li>
+				</div>
+			% endif
 		% endfor
-	##</ul>
 
-	<div><input type="submit" value="save" /></div>
+		<div class="form-actions">
+			<button type="submit" class="btn btn-primary">Save</button>
+		</div>
+	</fieldset>
 </form>
