@@ -24,7 +24,7 @@ class SecureForm (csrf.SecureForm):
 
 _default_sqla_t = sqlalchemy.types.String
 sqla_t_to_field = {
-	_default_sqla_t:          (w.TextField, [v.Length(min = 1, max = 254)]),
+	_default_sqla_t:          (w.TextField, []),
 	sqlalchemy.types.Boolean: (w.BooleanField, []),
 }
 
@@ -34,27 +34,30 @@ def _coltype_to_field (coltype):
 			return v
 	return sqla_t_to_field[_default_sqla_t]
 
-def make_form (model_class, form_base_class = SecureForm):
+def make_form (model_class, field_config = None, form_base_class = SecureForm):
+	field_config = field_config or {}
+
 	class Form (form_base_class):
 		pass
 
 	for prop in class_mapper(model_class).iterate_properties:
-		# print type(prop)
-		# print dir(prop)
-		if isinstance(prop, ColumnProperty):
-			if len(prop.columns) > 1:
-				log.warning("prop '%s' has > 1 columns, skipping" % prop)
-			else:
-				[column] = prop.columns
-				if not column.primary_key:
-					field_class, validators = _coltype_to_field(column.type)
+		name = prop.key
 
-					name = prop.key
-					setattr(Form, name, field_class(name.capitalize(), [v.Required()] + validators))
-		elif isinstance(prop, RelationshipProperty):
-			#http://stackoverflow.com/questions/3805712/what-type-is-on-the-other-end-of-relation-in-sqlalchemy-without-creating-objects
-			#https://groups.google.com/forum/?fromgroups=#!topic/sqlalchemy/z5fS-3Rwkfs
-			pass
+		if not (name in field_config and not field_config[name]):
+			if isinstance(prop, ColumnProperty):
+				if len(prop.columns) > 1:
+					log.warning("prop '%s' has > 1 columns, skipping" % prop)
+				else:
+					[column] = prop.columns
+					if not column.primary_key:
+						field_class, validators = _coltype_to_field(column.type)
+						
+						vs = field_config[name].get('validators', validators) if name in field_config else validators
+						setattr(Form, name, field_class(name.capitalize(), vs))
+			elif isinstance(prop, RelationshipProperty):
+				#http://stackoverflow.com/questions/3805712/what-type-is-on-the-other-end-of-relation-in-sqlalchemy-without-creating-objects
+				#https://groups.google.com/forum/?fromgroups=#!topic/sqlalchemy/z5fS-3Rwkfs
+				pass
 	
 	return Form
 
