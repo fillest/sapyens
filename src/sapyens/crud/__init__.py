@@ -26,6 +26,7 @@ _default_sqla_t = sqlalchemy.types.String
 sqla_t_to_field = {
 	_default_sqla_t:          (w.TextField, []),
 	sqlalchemy.types.Boolean: (w.BooleanField, []),
+	sqlalchemy.types.Integer: (w.IntegerField, []),
 }
 
 def _coltype_to_field (coltype):
@@ -53,8 +54,16 @@ def make_form (model_class, field_config = None, form_base_class = SecureForm):
 						field_class, validators = _coltype_to_field(column.type)
 						
 						vs = field_config[name].get('validators', validators) if name in field_config else validators
-						setattr(Form, name, field_class(name.capitalize(), vs))
+						is_readonly = field_config[name].get('readonly', False) if name in field_config else False
+						widget = False if is_readonly else None
+						field_args = field_config[name].get('field_args', {}) if name in field_config else {}
+
+						title = name.capitalize().replace('_', ' ')
+
+						field = field_class(title, vs, widget = widget, **field_args)
+						setattr(Form, name, field)
 			elif isinstance(prop, RelationshipProperty):
+				#https://groups.google.com/forum/#!msg/sqlalchemy/wb2M_oYkQdY/CZhuu45g40UJ
 				#http://stackoverflow.com/questions/3805712/what-type-is-on-the-other-end-of-relation-in-sqlalchemy-without-creating-objects
 				#https://groups.google.com/forum/?fromgroups=#!topic/sqlalchemy/z5fS-3Rwkfs
 				pass
@@ -108,8 +117,14 @@ class SubmitView (CrudView):
 	def __call__ (self, request):
 		model = self._fetch_model(request)
 		form = self._form_class(request.POST, csrf_context = request)
+
 		if form.validate():
-			#TODO remove old csrf token?
+			#TODO delete old csrf token?
+
+			# remove readonly fields
+			for field in form:
+				if field.widget is False:
+					del form[field.name]
 
 			form.populate_obj(model)
 

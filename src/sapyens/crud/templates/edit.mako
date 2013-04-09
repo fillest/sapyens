@@ -45,7 +45,11 @@
 						${field.label(class_ = 'control-label')}
 						
 						<div class="controls">
-							${field}
+							% if field.widget is False:
+								<div>${field.data}</div>
+							% else:
+								${field}
+							% endif
 
 							% if field.errors:
 								% for error in field.errors:
