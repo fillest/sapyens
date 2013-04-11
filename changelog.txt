@@ -1,9 +1,0 @@
-#Changelog
-
-##Version 0.2.0 (2013.??.??)
-* Start writing the changelog!
-* .helpers.route_view_config
-* .db: model __setattr__ check
-* .crud.ListView: try common attributes to get title
-
-* some minor improvements
