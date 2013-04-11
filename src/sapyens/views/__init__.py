@@ -2,6 +2,7 @@ from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPU
 import pyramid.security
 import operator
 import urllib
+import urllib2
 import urlparse
 import json
 
@@ -112,7 +113,8 @@ class FacebookCallbackView (object):
 		self.json_loads = json_loads
 
 	def _read_url (self, url):
-		return urllib.urlopen(url).read() #TODO close?
+		with contextlib.closing(urllib2.urlopen(url)) as resp:
+			return resp.read()
 
 	def _on_finish (self, request, data):
 		pass
