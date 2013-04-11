@@ -122,6 +122,9 @@ class SubmitView (CrudView):
 	def _produce_form_input (self, request):
 		return request.POST
 
+	def _on_after_saved (self, request, model):
+		pass
+
 	def __call__ (self, request):
 		model = self._fetch_model(request)
 
@@ -140,10 +143,13 @@ class SubmitView (CrudView):
 
 			self.db_session.add(model)
 			self.db_session.flush()
+			model_id = model.id
+
+			self._on_after_saved(request, model)
 
 			request.session.flash('Successfully saved')
 
-			return HTTPFound(location = request.route_url(self.redirect_route, id = model.id))
+			return HTTPFound(location = request.route_url(self.redirect_route, id = model_id))
 		else:
 			return {
 				'model': model,
