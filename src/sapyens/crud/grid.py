@@ -9,6 +9,7 @@ class Grid(object):
     def __init__(self,  model,  fields_to_display): 
         super(Grid,  self).__init__(model, fields_to_display)
         self.mapping = get_fields_from_model(self._model)
+        self.fields_to_display = getattr(self, 'fields_to_display', self.mapping.keys())
 
     def get_template(self): 
         assert self.template_helpers
