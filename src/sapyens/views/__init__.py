@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPUnprocessableEntity
 import pyramid.security
 import operator
 import urllib
@@ -76,10 +76,10 @@ class LoginView (object):
 	def _try_parse_input (self, request):
 		username = request.POST.get('username')
 		if username is None:
-			raise HTTPNotFound()
+			raise HTTPUnprocessableEntity()
 		password = request.POST.get('password')
 		if password is None:
-			raise HTTPNotFound()
+			raise HTTPUnprocessableEntity()
 		return username, password
 
 class FacebookRedirectView (object):

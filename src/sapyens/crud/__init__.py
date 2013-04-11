@@ -1,4 +1,4 @@
-from pyramid.httpexceptions import HTTPFound, HTTPForbidden
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden, HTTPUnprocessableEntity
 from sapyens.helpers import get_by_id, raise_not_found
 from wtforms.ext import csrf
 import wtforms.widgets
@@ -19,7 +19,7 @@ class SecureForm (csrf.SecureForm):
 
 	def validate_csrf_token (self, field):
 		if field.current_token != field.data:
-			raise HTTPForbidden()
+			raise HTTPUnprocessableEntity()
 
 
 _default_sqla_t = sqlalchemy.types.String
