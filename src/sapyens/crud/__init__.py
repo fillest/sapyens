@@ -104,6 +104,11 @@ class CrudView (object):
 	def include_to_config (self, config):
 		raise NotImplementedError()
 
+	def _produce_extra_form_args (self, form_class, request):
+		if issubclass(form_class, csrf.SecureForm):
+			return {'csrf_context': request}
+		else:
+			return {}
 
 class SubmitView (CrudView):
 	redirect_route = None
@@ -114,9 +119,20 @@ class SubmitView (CrudView):
 	def _fetch_model (self, request):
 		raise NotImplementedError()
 
+	def _produce_form_input (self, request):
+		#TODO this is workaround for https://bitbucket.org/simplecodes/wtforms/issue/152/field-data-doesnt-get-default-field-value
+		inp = request.POST.copy()
+		for f in self._form_class():
+			if f.name not in inp and f.default is not None:
+				inp[f.name] = f.default
+
+		return inp
+
 	def __call__ (self, request):
 		model = self._fetch_model(request)
-		form = self._form_class(request.POST, csrf_context = request)
+
+		form = self._form_class(self._produce_form_input(request),
+			**self._produce_extra_form_args(self._form_class, request))
 
 		if form.validate():
 			#TODO delete old csrf token?
@@ -124,7 +140,7 @@ class SubmitView (CrudView):
 			# remove readonly fields
 			for field in form:
 				if field.widget is False:
-					del form[field.name]
+					del form[field.short_name]
 
 			form.populate_obj(model)
 
@@ -180,7 +196,7 @@ class EditView (CrudView):
 		model = get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
 		return {
 			'model': model,
-			'form': self._form_class(obj = model, csrf_context = request),
+			'form': self._form_class(obj = model, **self._produce_extra_form_args(self._form_class, request)),
 			'submit_path': request.route_path(self.submit_path_route, id = model.id),
 			'list_route': self.list_route,
 			'page_title': (self.page_title or (u"edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id)
@@ -194,7 +210,7 @@ class NewView (EditView):
 	def __call__ (self, request):
 		return {
 			'model': self._model(),
-			'form': self._form_class(csrf_context = request),
+			'form': self._form_class(**self._produce_extra_form_args(self._form_class, request)),
 			'submit_path': request.route_path(self.submit_path_route),
 			'list_route': self.list_route,
 			'page_title': self.page_title or (u"create %s" % unicode(self._model.__name__))
