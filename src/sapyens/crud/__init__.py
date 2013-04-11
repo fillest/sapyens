@@ -120,13 +120,7 @@ class SubmitView (CrudView):
 		raise NotImplementedError()
 
 	def _produce_form_input (self, request):
-		#TODO this is workaround for https://bitbucket.org/simplecodes/wtforms/issue/152/field-data-doesnt-get-default-field-value
-		inp = request.POST.copy()
-		for f in self._form_class():
-			if f.name not in inp and f.default is not None:
-				inp[f.name] = f.default
-
-		return inp
+		return request.POST
 
 	def __call__ (self, request):
 		model = self._fetch_model(request)
