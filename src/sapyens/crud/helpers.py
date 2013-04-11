@@ -155,6 +155,6 @@ class Query(object):
 
 
 def get_fields_from_model(model): 
-    fields = {column.name: column for column in model.__table__.columns}
+    fields = dict((column.name, column) for column in model.__table__.columns)
     return fields
 
