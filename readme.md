@@ -7,6 +7,7 @@
 * sapyens.migrate — plain SQL migration management
 * sapyens.script — console script base
 * sapyens.views — other generic views
+* Pyramid scaffold for Sapyens-based projects
 
 ## Setup
 To install latest released version (from [PyPI repository](http://pypi.python.org/pypi/sapyens)):
