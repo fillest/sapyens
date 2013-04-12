@@ -125,11 +125,23 @@ class SubmitView (CrudView):
 	def _on_after_saved (self, request, model):
 		pass
 
+	def _on_before_populate (self, request, model, form):
+		pass
+
 	def __call__ (self, request):
 		model = self._fetch_model(request)
 
 		form = self._form_class(self._produce_form_input(request),
 			**self._produce_extra_form_args(self._form_class, request))
+
+		def form_page_with_errors ():
+			return {
+				'model': model,
+				'form': form,
+				'submit_path': request.current_route_path(),
+				'list_route': self.list_route,
+				'page_title': self._page_title(model),
+			}
 
 		if form.validate():
 			#TODO delete old csrf token?
@@ -139,25 +151,22 @@ class SubmitView (CrudView):
 				if field.widget is False:
 					del form[field.short_name]
 
-			form.populate_obj(model)
+			if self._on_before_populate(request, model, form) is False:
+				return form_page_with_errors()
+			else:
+				form.populate_obj(model)
 
-			self.db_session.add(model)
-			self.db_session.flush()
-			model_id = model.id
+				self.db_session.add(model)
+				self.db_session.flush()
+				model_id = model.id
 
-			self._on_after_saved(request, model)
+				self._on_after_saved(request, model)
 
-			request.session.flash('Successfully saved')
+				request.session.flash(u"Successfully saved")
 
-			return HTTPFound(location = request.route_url(self.redirect_route, id = model_id))
+				return HTTPFound(location = request.route_url(self.redirect_route, id = model_id))
 		else:
-			return {
-				'model': model,
-				'form': form,
-				'submit_path': request.current_route_path(),
-				'list_route': self.list_route,
-				'page_title': self._page_title(model),
-			}
+			return form_page_with_errors()
 
 	def _page_title (self, model):
 		raise NotImplementedError()
