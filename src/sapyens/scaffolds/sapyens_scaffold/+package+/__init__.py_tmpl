@@ -9,10 +9,14 @@ from pyramid.events import BeforeRender, subscriber
 from pyramid.security import authenticated_userid, has_permission
 import pyramid.tweens
 import sapyens.views
+#import sapyens.crud
+import sapyens.helpers
 
 
 def main (global_config, **settings):
-    {{project}}.db.init(engine_from_config(settings, 'sqlalchemy.'))
+    sapyens.helpers.set_utc_timezone()
+
+    {{project}}.db.init(engine_from_config(settings, 'sqlalchemy.'), settings)
 
     config = Configurator(
         settings = settings,
@@ -45,6 +49,9 @@ def main (global_config, **settings):
     config.add_forbidden_view(login_view, renderer = 'sapyens.views:templates/login.mako')
     config.add_route('logout', '/logout')
     config.add_view(sapyens.views.LogoutView('root'), route_name = 'logout', permission = 'view')
+
+    #config.add_route('admin', '/admin')
+    #config.add_view(sapyens.crud.IndexView(), renderer = 'sapyens.crud:templates/admin/index.mako', route_name = 'admin') #, permission = 'admin'
 
     config.scan()
 

@@ -1,6 +1,11 @@
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden
+import contextlib
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPUnprocessableEntity
 import pyramid.security
 import operator
+import urllib
+import urllib2
+import urlparse
+import json
 
 
 class LogoutView (object):
@@ -73,8 +78,78 @@ class LoginView (object):
 	def _try_parse_input (self, request):
 		username = request.POST.get('username')
 		if username is None:
-			raise HTTPNotFound()
+			raise HTTPUnprocessableEntity()
 		password = request.POST.get('password')
 		if password is None:
-			raise HTTPNotFound()
+			raise HTTPUnprocessableEntity()
 		return username, password
+
+class FacebookRedirectView (object):
+	def __init__ (self, app_id, make_redirect_uri, scope = 'email'):
+		self.app_id = app_id
+		self.make_redirect_uri = make_redirect_uri #TODO better naming
+		self.scope = scope
+
+	def __call__ (self, context, request):
+		#https://developers.facebook.com/docs/reference/dialogs/oauth/
+		#https://developers.facebook.com/docs/howtos/login/server-side-login/
+		params = dict(
+			client_id = self.app_id,
+			redirect_uri = self.make_redirect_uri(request),
+			state = self._make_state(request),
+		)
+		if self.scope:
+			params['scope'] = self.scope
+		url = 'https://www.facebook.com/dialog/oauth/?' + urllib.urlencode(params)
+		return HTTPFound(location = url)
+
+	def _make_state (self, request):
+		return 'test'
+
+class FacebookCallbackView (object):
+	def __init__ (self, app_id, make_redirect_uri, app_secret, json_loads = json.loads):
+		self.app_id = app_id
+		self.make_redirect_uri = make_redirect_uri
+		self.app_secret = app_secret
+		self.json_loads = json_loads
+
+	def _read_url (self, url):
+		with contextlib.closing(urllib2.urlopen(url)) as resp:
+			return resp.read()
+
+	def _on_finish (self, request, data):
+		pass
+
+	def __call__ (self, context, request):
+		assert request.GET['state'] == 'test' #TODO
+
+		params = dict(
+			client_id = self.app_id,
+			redirect_uri = self.make_redirect_uri(request),
+			client_secret = self.app_secret,
+			code = request.GET['code'],
+		)
+		# fb_host = 'localhost'
+		fb_host = 'graph.facebook.com'
+		url = 'https://' + fb_host + '/oauth/access_token?' + urllib.urlencode(params)
+		
+		resp = self._read_url(url)
+		resp = urlparse.parse_qs(resp)
+		[access_token] = resp['access_token']
+		# [expires] = resp['expires']
+
+		params = dict(
+			access_token = access_token,
+		)
+		url = 'https://' + fb_host + '/me?' + urllib.urlencode(params)
+		resp = self._read_url(url)
+		resp = self.json_loads(resp)
+		#TODO
+		# print resp
+		assert 'error' not in resp
+		assert 'id' in resp
+
+		self._on_finish(request, resp)
+
+		#TODO
+		return HTTPFound(location = '/')
