@@ -1,15 +1,16 @@
+import os.path
 import setuptools
 
 
-requires = [
-]
-
+parent_dir_path = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(parent_dir_path, 'readme.md'), 'r') as f:
+	readme_content = f.read()
 
 setuptools.setup(
 	name = 'sapyens',
 	version = '0.2.0',
 	description = 'SQLAlchemy & Pyramid enhancements',
-	long_description = 'SQLAlchemy & Pyramid enhancements',
+	long_description = readme_content,
 	author = 'Philipp Saveliev',
 	author_email = 'fsfeel@gmail.com',
 	url = 'https://github.com/fillest/sapyens',
@@ -17,7 +18,6 @@ setuptools.setup(
 	packages = setuptools.find_packages('src'),
 	include_package_data = True,
 	zip_safe = False,
-	install_requires = requires,
 	license = "The MIT License (http://www.opensource.org/licenses/mit-license.php)",
 	classifiers = [
 		'Development Status :: 4 - Beta',
