@@ -18,7 +18,6 @@ setuptools.setup(
 	packages = setuptools.find_packages('src'),
 	include_package_data = True,
 	zip_safe = False,
-	license = "The MIT License (http://www.opensource.org/licenses/mit-license.php)",
 	classifiers = [
 		'Development Status :: 4 - Beta',
 		'Framework :: Pyramid',
