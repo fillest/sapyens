@@ -128,6 +128,9 @@ class SubmitView (CrudView):
 	def _on_before_populate (self, request, model, form):
 		pass
 
+	def _make_redirect_url (self, request, model_id):
+		return request.route_url(self.redirect_route, id = model_id)
+
 	def __call__ (self, request):
 		model = self._fetch_model(request)
 
@@ -164,7 +167,7 @@ class SubmitView (CrudView):
 
 				request.session.flash(u"Successfully saved")
 
-				return HTTPFound(location = request.route_url(self.redirect_route, id = model_id))
+				return HTTPFound(location = self._make_redirect_url(request, model_id))
 		else:
 			return form_page_with_errors()
 
