@@ -291,7 +291,8 @@ class Crud (object):
 			cls._registered_cruds.append(cls)
 
 		for view_class in (cls.new, cls.edit, cls.create, cls.update, cls.list, cls.delete):
-			view_class(cls.model, cls.form).include_to_config(config)
+			if view_class:
+				view_class(cls.model, cls.form).include_to_config(config)
 
 	@classmethod
 	def get_title (cls):
