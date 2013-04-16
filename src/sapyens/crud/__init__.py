@@ -306,14 +306,15 @@ class IndexView (object):
 		return {'cruds': Crud._registered_cruds}
 
 def make_view_classes (pathname, db_session_, permission_ = 'admin',
-		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True):
+		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True,
+		list_route_ = None):
 	classes = []
 
 	class CommonParams (object):
 		renderer = 'sapyens.crud:templates/admin/edit.mako'
 		permission = permission_
 
-	list_route_ = '%s.list' % pathname
+	list_route_ = list_route_ or '%s.list' % pathname
 	delete_route_ = '%s.delete' % pathname
 
 	if new:
@@ -369,7 +370,7 @@ def make_view_classes (pathname, db_session_, permission_ = 'admin',
 		class Delete (CommonParams, DeleteView):
 			route_name = delete_route_
 			route_path = '/%s/delete/{id:\d+}' % pathname
-			redirect_route = List.route_name
+			redirect_route = list_route_
 		classes.append(Delete)
 
 	return classes
