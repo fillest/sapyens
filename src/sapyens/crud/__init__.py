@@ -271,6 +271,7 @@ class DeleteView (CrudView):
 		config.add_view(self, route_name = self.route_name, permission = self.permission)
 
 class Crud (object):
+	show_in_admin_index = False
 	_registered_cruds = []
 
 	model = None
@@ -286,7 +287,8 @@ class Crud (object):
 
 	@classmethod
 	def include_to_config (cls, config):
-		cls._registered_cruds.append(cls)
+		if cls.show_in_admin_index:
+			cls._registered_cruds.append(cls)
 
 		for view_class in (cls.new, cls.edit, cls.create, cls.update, cls.list, cls.delete):
 			view_class(cls.model, cls.form).include_to_config(config)
@@ -294,6 +296,9 @@ class Crud (object):
 	@classmethod
 	def get_title (cls):
 		return cls.title or cls.__name__
+
+class AdminCrud (Crud):
+	show_in_admin_index = True
 
 class IndexView (object):
 	def __call__ (self, request):
