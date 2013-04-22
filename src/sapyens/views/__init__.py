@@ -25,64 +25,62 @@ class LogoutView (object):
 		return response
 
 class LoginView (object):
-	def __init__ (self, get_real_password, compare_passwords = operator.eq):
-		self._get_real_password = get_real_password
-		self._compare_passwords = compare_passwords
+	def __init__ (self, context, request):
+		self.request = request
+		self.context = context
 
-	def __call__ (self, context, request):
+	def __call__ (self):
 		#TODO csrf?
-		redirect_url = self._decide_redirect_url(request, isinstance(context, HTTPForbidden))
+		data = self._parse_input()
 
-		if request.method.upper() == 'POST':
-			username, password = self._try_parse_input(request)
+		auth_failed = False
 
-			if self._check_password(username, password, request):
-				response = HTTPFound(location = redirect_url)
-				return self._update_response(response, request, username)
+		if self.request.method.upper() == 'POST':
+			if self._verify_credentials(data):
+				response = HTTPFound(location = data['redirect_url'])
+				return self._updated_response(response, data)
 			else:
 				auth_failed = True
-		else:
-			auth_failed = False
-
-			username = ''
-			password = ''
 
 		return {
 			'auth_failed': auth_failed,
-			'redirect_url': redirect_url,
-			'username': username,
-			'password': password,
+			'data': data,
 		}
 
-	def _decide_redirect_url (self, request, is_on_forbidden):
-		redirect_url = request.POST.get('redirect_url')
+	def _parse_input (self):
+		return {
+			'userid': self.request.POST.get('userid', ''),
+			'password': self.request.POST.get('password', ''),
+			'redirect_url': self._decide_redirect_url(),
+		}
+
+	def _get_default_redirect_url (self):
+		return self.request.application_url
+
+	def _decide_redirect_url (self):
+		redirect_url = self.request.POST.get('redirect_url')
+
 		if not redirect_url:
-			if is_on_forbidden:
-				redirect_url = request.url
+			if isinstance(self.context, HTTPForbidden):
+				redirect_url = self.request.url
 			else:
-				redirect_url = request.referer  #TODO can be not absolute?
-				if not redirect_url:
-					redirect_url = request.url
-					#TODO custom route? + natural /login hit
-		if not redirect_url.startswith(request.application_url):
-			redirect_url = request.application_url
+				redirect_url = self._get_default_redirect_url(self.request)
+				# redirect_url = request.referer  #TODO can be relative?
+				# if not redirect_url:
+				# 	redirect_url = request.url
+				# 	#TODO custom route? + natural /login hit
+
+		if not redirect_url.startswith(self.request.application_url):
+			redirect_url = self._get_default_redirect_url(self.request)
+		
 		return redirect_url
 
-	def _check_password (self, username, password, request):
-		return self._compare_passwords(password, self._get_real_password(username, request))
+	def _verify_credentials (self, data):
+		return data['password'] == self.request.registry.settings.get('auth.password')
 
-	def _update_response (self, response, request, username):
-		response.headerlist.extend(pyramid.security.remember(request, username))
+	def _updated_response (self, response, data):
+		response.headerlist.extend(pyramid.security.remember(self.request, data['userid']))
 		return response
-
-	def _try_parse_input (self, request):
-		username = request.POST.get('username')
-		if username is None:
-			raise HTTPUnprocessableEntity()
-		password = request.POST.get('password')
-		if password is None:
-			raise HTTPUnprocessableEntity()
-		return username, password
 
 class FacebookRedirectView (object):
 	def __init__ (self, app_id, make_redirect_uri, scope = 'email'):
