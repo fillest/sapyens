@@ -9,18 +9,21 @@ import json
 
 
 class LogoutView (object):
-	def __init__ (self, redirect_route):
+	def __init__ (self, redirect_route = None):
 		self._redirect_route = redirect_route
 
 	def __call__ (self, request):
 		#TODO csrf?
 		response = HTTPFound(location = self._make_redirect_url(request))
-		return self._update_response(response, request)
+		return self._updated_response(response, request)
 
 	def _make_redirect_url (self, request):
-		return request.route_url(self._redirect_route)
+		if self._redirect_route:
+			return request.route_url(self._redirect_route)
+		else:
+			return request.application_url
 
-	def _update_response (self, response, request):
+	def _updated_response (self, response, request):
 		response.headerlist.extend(pyramid.security.forget(request))
 		return response
 
