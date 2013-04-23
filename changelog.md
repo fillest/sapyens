@@ -14,4 +14,5 @@
 * .crud.make_form
 * raise HTTPUnprocessableEntity instead of HTTPForbidden and HTTPNotFound in some views
 * .crud: grid
+* .crud.SubmitView: various hooks
 * various minor fixes and improvements

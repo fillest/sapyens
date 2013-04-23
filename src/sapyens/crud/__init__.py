@@ -128,7 +128,7 @@ class SubmitView (CrudView):
 	def _on_before_populate (self, request, model, form):
 		pass
 
-	def _make_redirect_url (self, request, model_id):
+	def _make_redirect_url (self, request, model_id): #TODO merge model and pass
 		return request.route_url(self.redirect_route, id = model_id)
 
 	def __call__ (self, request):
@@ -157,19 +157,23 @@ class SubmitView (CrudView):
 			if self._on_before_populate(request, model, form) is False:
 				return form_page_with_errors()
 			else:
-				form.populate_obj(model)
-
-				self.db_session.add(model)
-				self.db_session.flush()
-				model_id = model.id
-
-				self._on_after_saved(request, model)
-
-				request.session.flash(u"Successfully saved")
-
-				return HTTPFound(location = self._make_redirect_url(request, model_id))
+				return self._populate_and_return(form, model, request)
 		else:
 			return form_page_with_errors()
+
+	def _populate_and_return (self, form, model, request):
+		form.populate_obj(model)
+
+		self.db_session.add(model)
+		self.db_session.flush()
+		model_id = model.id
+		#TODO merge
+
+		self._on_after_saved(request, model)
+
+		request.session.flash(u"Successfully saved")
+
+		return HTTPFound(location = self._make_redirect_url(request, model_id))
 
 	def _page_title (self, model):
 		raise NotImplementedError()
