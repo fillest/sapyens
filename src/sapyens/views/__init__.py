@@ -28,12 +28,26 @@ class LogoutView (object):
 		return response
 
 class LoginView (object):
+	route_name = 'login'
+	route_path = '/login'
+	permission = None
+	renderer = 'sapyens.views:templates/login.mako'
+	add_as_forbidden_view = True
+
 	def __init__ (self, context, request):
 		self.request = request
 		self.context = context
 
+	@classmethod
+	def include_to_config (cls, config):
+		config.add_route(cls.route_name, cls.route_path)
+		config.add_view(cls, route_name = cls.route_name, renderer = cls.renderer, permission = cls.permission)
+
+		if cls.add_as_forbidden_view:
+			config.add_forbidden_view(cls, renderer = cls.renderer)
+
 	def __call__ (self):
-		#TODO csrf?
+		#TODO csrf
 		data = self._parse_input()
 
 		auth_failed = False

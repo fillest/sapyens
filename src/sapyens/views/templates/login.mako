@@ -1,29 +1,43 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<%inherit file="sapyens.views:templates/base.mako" />
 
-		<title>log in</title>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="UTF-8"></script>
-    </head>
-    <body>
-        <script type="text/javascript">
-			$(function () {
-				$('#username').focus();
-			});
-		</script>
+<%block name="title">Log in</%block>
 
-		<form action="" method="post">
-			%if auth_failed:
-				<div style="color: red;">auth failed</div>
-			%endif
 
-			<input type="hidden" name="redirect_url" value="${redirect_url}" />
+<script type="text/javascript">
+    $(function () {
+        $('#userid').focus();
+    });
+</script>
 
-			<br /><label>username <input id="username" type="text" name="username" value="${username}" /></label>
-			<br /><label>password <input type="password" name="password" value="${password}" /></label>
-			<br /><input type="submit" value="log in" />
-		</form>
-    </body>
-</html>
+
+%if auth_failed:
+    <div class="alert alert-error">Incorrect email or password</div>
+%endif
+
+<form class="form-horizontal" action="" method="post">
+    <input type="hidden" name="redirect_url" value="${data['redirect_url']}" />
+
+    <div class="control-group">
+        <label class="control-label" for="userid">Email</label>
+        <div class="controls">
+            <input name="userid" type="text" id="userid" placeholder="Email" value="${data['userid']}">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="password">Password</label>
+        <div class="controls">
+            <input name="password" type="password" id="password" placeholder="Пароль" value="${data['password']}">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            ##<label class="checkbox">
+            ##    <input type="checkbox"> Remember me
+            ##</label>
+
+            <button type="submit" class="btn">Log in</button>
+        </div>
+    </div>
+</form>
