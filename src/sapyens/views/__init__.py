@@ -30,7 +30,7 @@ class LogoutView (object):
 class LoginView (object):
 	route_name = 'login'
 	route_path = '/login'
-	permission = None
+	permission = pyramid.security.NO_PERMISSION_REQUIRED
 	renderer = 'sapyens.views:templates/login.mako'
 	add_as_forbidden_view = True
 
