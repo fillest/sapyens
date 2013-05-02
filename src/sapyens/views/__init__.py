@@ -32,7 +32,9 @@ class LoginView (object):
 	route_path = '/login'
 	permission = pyramid.security.NO_PERMISSION_REQUIRED
 	renderer = 'sapyens.views:templates/login.mako'
+	base_template = 'sapyens.views:templates/base.mako'
 	add_as_forbidden_view = True
+	page_title = "Log in"
 
 	def __init__ (self, context, request):
 		self.request = request
@@ -62,6 +64,8 @@ class LoginView (object):
 		return {
 			'auth_failed': auth_failed,
 			'data': data,
+			'base_template': self.base_template,
+			'page_title': self.page_title,
 		}
 
 	def _parse_input (self):
@@ -71,7 +75,7 @@ class LoginView (object):
 			'redirect_url': self._decide_redirect_url(),
 		}
 
-	def _get_default_redirect_url (self):
+	def _get_default_redirect_url (self, request):
 		return self.request.application_url
 
 	def _decide_redirect_url (self):

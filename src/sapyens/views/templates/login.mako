@@ -1,7 +1,7 @@
-<%inherit file="sapyens.views:templates/base.mako" />
+<%inherit file="${context.get('base_template')}" />
 
 
-<%block name="title">Log in</%block>
+<%block name="title">${page_title}</%block>
 
 
 <script type="text/javascript">
@@ -21,13 +21,13 @@
     <div class="control-group">
         <label class="control-label" for="userid">Email</label>
         <div class="controls">
-            <input name="userid" type="text" id="userid" placeholder="Email" value="${data['userid']}">
+            <input name="userid" type="text" id="userid" placeholder="" value="${data['userid']}">
         </div>
     </div>
     <div class="control-group">
         <label class="control-label" for="password">Password</label>
         <div class="controls">
-            <input name="password" type="password" id="password" placeholder="Пароль" value="${data['password']}">
+            <input name="password" type="password" id="password" placeholder="" value="${data['password']}">
         </div>
     </div>
 
