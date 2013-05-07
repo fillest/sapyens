@@ -24,7 +24,7 @@ class SecureForm (csrf.SecureForm):
 
 _default_sqla_t = sqlalchemy.types.String
 sqla_t_to_field = {
-	_default_sqla_t:          (w.TextField, []),
+	_default_sqla_t:          (w.StringField, []),
 	sqlalchemy.types.Boolean: (w.BooleanField, []),
 	sqlalchemy.types.Integer: (w.IntegerField, []),
 }
