@@ -8,7 +8,7 @@ with open(os.path.join(parent_dir_path, 'readme.md'), 'r') as f:
 
 setuptools.setup(
 	name = 'sapyens',
-	version = '0.2.1',
+	version = '0.2.2',
 	description = 'SQLAlchemy & Pyramid enhancements',
 	long_description = readme_content,
 	author = 'Philipp Saveliev',
