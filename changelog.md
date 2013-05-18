@@ -1,6 +1,6 @@
 # Sapyens changelog
 
-## Version 0.2.0 (2013-MM-DD)
+## Version 0.2.0 (2013-05-18)
 * start to maintaing this changelog
 * .views.LoginView rework (breaks compatibility)
 * considerably improve .crud markup (breaks compatibility)
