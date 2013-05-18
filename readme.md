@@ -19,7 +19,8 @@ To install development version:
     pip install git+https://github.com/fillest/sapyens.git
 
 ## Docs
-[github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
+* [github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
+* [Changelog](https://github.com/fillest/sapyens/blob/master/changelog.md)
 
 ## Issues
 Please submit any bugs or feedback to [the issue tracker](https://github.com/fillest/sapyens/issues)
