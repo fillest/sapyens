@@ -4,9 +4,9 @@
 * start to maintaing this changelog
 * .views.LoginView rework (breaks compatibility)
 * considerably improve .crud markup (breaks compatibility)
-* .helpers.route_view_config
+* .helpers.route\_view\_config
 * .db.Reflected.try_get: first positional argument can be 'id' by default
-* .db: model __setattr__ check
+* .db: model \_\_setattr\_\_ check
 * improve scaffold
 * .crud.ListView: try common-used attributes to get title
 * .crud: admin index section
