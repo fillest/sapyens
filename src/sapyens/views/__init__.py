@@ -172,3 +172,81 @@ class FacebookCallbackView (object):
 
 		#TODO
 		return HTTPFound(location = '/')
+
+#TODO copypaste
+class GoogleRedirectView (object):
+	def __init__ (self, app_id, make_redirect_uri, scope = 'https://www.googleapis.com/auth/userinfo.email'):
+		self.app_id = app_id
+		self.make_redirect_uri = make_redirect_uri #TODO better naming
+		self.scope = scope
+
+	def __call__ (self, context, request):
+		#https://developers.google.com/accounts/docs/OAuth2WebServer
+		params = dict(
+			response_type = 'code',
+			client_id = self.app_id,
+			redirect_uri = self.make_redirect_uri(request),
+			state = self._make_state(request),
+			approval_prompt = 'force', #
+		)
+		if self.scope:
+			params['scope'] = self.scope
+		url = 'https://accounts.google.com/o/oauth2/auth?' + urllib.urlencode(params)
+		return HTTPFound(location = url)
+
+	def _make_state (self, request):
+		return 'test'
+
+class GoogleRedirectViewCallbackView (object):
+	def __init__ (self, app_id, make_redirect_uri, app_secret, json_loads = json.loads):
+		self.app_id = app_id
+		self.make_redirect_uri = make_redirect_uri
+		self.app_secret = app_secret
+		self.json_loads = json_loads
+
+	def _read_url (self, url, data):
+		with contextlib.closing(urllib2.urlopen(url, urllib.urlencode(data) if data else None)) as resp:
+			return resp.read()
+
+	def _on_finish (self, request, data):
+		pass
+
+	def __call__ (self, context, request):
+		assert request.GET['state'] == 'test' #TODO
+
+		params = dict(
+			client_id = self.app_id,
+			redirect_uri = self.make_redirect_uri(request),
+			client_secret = self.app_secret,
+			code = request.GET['code'],
+			grant_type = 'authorization_code',
+		)
+		# fb_host = 'localhost'
+		fb_host = 'accounts.google.com'
+		url = 'https://' + fb_host + '/o/oauth2/token'
+		
+		try:
+			resp = self._read_url(url, params)
+		except Exception as e:
+			# print e.read()
+			raise
+		resp = self.json_loads(resp)
+		access_token = resp['access_token']
+
+		params = dict(
+			access_token = access_token,
+		)
+		url = 'https://www.googleapis.com/oauth2/v1/userinfo?' + urllib.urlencode(params)
+		resp = self._read_url(url, None)
+		resp = self.json_loads(resp)
+		#TODO
+		# print resp
+		# assert 'error' not in resp
+		assert 'id' in resp
+		assert 'email' in resp
+		assert resp['verified_email']
+
+		self._on_finish(request, resp)
+
+		#TODO
+		return HTTPFound(location = '/')

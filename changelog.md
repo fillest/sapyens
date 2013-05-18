@@ -1,5 +1,8 @@
 # Sapyens changelog
 
+## Version ?
+* Google auth
+
 ## Version 0.2.0 (2013-05-18)
 * start to maintaing this changelog
 * .views.LoginView rework (breaks compatibility)
