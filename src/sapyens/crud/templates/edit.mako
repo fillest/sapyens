@@ -8,9 +8,9 @@
 </style>
 
 
-<div>
-	<a href="${request.route_path(list_route)}">View list</a>
-</div>
+% if list_route:
+	<div><a href="${request.route_path(list_route)}">View list</a></div>
+% endif
 
 
 ##TODO move to view

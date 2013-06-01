@@ -318,7 +318,8 @@ def make_view_classes (pathname, db_session_, permission_ = 'admin',
 		renderer = 'sapyens.crud:templates/admin/edit.mako'
 		permission = permission_
 
-	list_route_ = list_route_ or '%s.list' % pathname
+	if list_:
+		list_route_ = list_route_ or '%s.list' % pathname
 	delete_route_ = '%s.delete' % pathname
 
 	if new:
