@@ -1,4 +1,4 @@
-<%inherit file="sapyens.crud:templates/admin/base.mako" />
+<%inherit file="${context.get('base_template')}" />
 
 
 <%block name="title">${page_title}</%block>

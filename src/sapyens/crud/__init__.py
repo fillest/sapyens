@@ -115,6 +115,7 @@ class SubmitView (CrudView):
 	db_session = None
 	list_route = None
 	page_title = None
+	base_template = 'sapyens.crud:templates/admin/base.mako'
 
 	def _fetch_model (self, request):
 		raise NotImplementedError()
@@ -144,6 +145,7 @@ class SubmitView (CrudView):
 				'submit_path': request.current_route_path(),
 				'list_route': self.list_route,
 				'page_title': self._page_title(model),
+				'base_template': self.base_template,
 			}
 
 		if form.validate():
@@ -207,6 +209,7 @@ class EditView (CrudView):
 	submit_path_route = None
 	list_route = None
 	page_title = None
+	base_template = 'sapyens.crud:templates/admin/base.mako'
 
 	def __call__ (self, request):
 		model = get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
@@ -216,6 +219,7 @@ class EditView (CrudView):
 			'submit_path': request.route_path(self.submit_path_route, id = model.id),
 			'list_route': self.list_route,
 			'page_title': (self.page_title or (u"Edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id),
+			'base_template': self.base_template,
 		}
 
 	def include_to_config (self, config):
@@ -230,6 +234,7 @@ class NewView (EditView):
 			'submit_path': request.route_path(self.submit_path_route),
 			'list_route': self.list_route,
 			'page_title': self.page_title or (u"Create %s" % unicode(self._model.__name__)),
+			'base_template': self.base_template,
 		}
 
 class ListView (CrudView):
@@ -237,6 +242,7 @@ class ListView (CrudView):
 	new_route = None
 	delete_route = None
 	page_title = None
+	base_template = 'sapyens.crud:templates/admin/base.mako'
 
 	def get_obj_title (self, obj):
 		for name in ('title', 'name', 'email'):
@@ -255,7 +261,8 @@ class ListView (CrudView):
 			'edit_title': self.edit_title,
 			'new_route': self.new_route,
 			'delete_route': self.delete_route,
-			'page_title': self.page_title or (u"%s list" % unicode(self._model.__name__))
+			'page_title': self.page_title or (u"%s list" % unicode(self._model.__name__)),
+			'base_template': self.base_template,
 		}
 
 	def include_to_config (self, config):
@@ -311,7 +318,7 @@ class IndexView (object):
 
 def make_view_classes (pathname, db_session_, permission_ = 'admin',
 		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True,
-		list_route_ = None):
+		list_route_ = None, base_template = None):
 	classes = []
 
 	class CommonParams (object):
@@ -377,5 +384,10 @@ def make_view_classes (pathname, db_session_, permission_ = 'admin',
 			route_path = '/%s/delete/{id:\d+}' % pathname
 			redirect_route = list_route_
 		classes.append(Delete)
+
+	if base_template:
+		for cls in classes:
+			if hasattr(cls, 'base_template'):
+				cls.base_template = base_template
 
 	return classes
