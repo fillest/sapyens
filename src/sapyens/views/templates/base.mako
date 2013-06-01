@@ -5,11 +5,11 @@
 
 		<title><%block name="title">override this</%block></title>
 
-		<link rel="stylesheet" href="http://cdn.fillest.ru/bootstrap.2.3.2/css/bootstrap.min.css" charset="UTF-8" />
+		<link rel="stylesheet" href="${request.static_url('sapyens:static/bootstrap/css/bootstrap.min.css')}" charset="UTF-8" />
 		<%block name="links"></%block>
 
-		<script src="http://cdn.fillest.ru/jquery-1.9.1.min.js" type="text/javascript" charset="UTF-8"></script>
-		<script src="http://cdn.fillest.ru/bootstrap.2.3.2/js/bootstrap.min.js" type="text/javascript" charset="UTF-8"></script>
+		<script src="${request.static_url('sapyens:static/js/jquery.min.js')}" type="text/javascript" charset="UTF-8"></script>
+		<script src="${request.static_url('sapyens:static/bootstrap/js/bootstrap.min.js')}" type="text/javascript" charset="UTF-8"></script>
 		<%block name="scripts"></%block>
 	</head>
 	<body>

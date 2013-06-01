@@ -4,15 +4,16 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
         <title>
-            <%block name="title">untitled</%block>
-            — admin section
+            <%block name="title">Untitled</%block>
+            — Admin section
         </title>
 
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css" charset="UTF-8" />
+        <link rel="stylesheet" href="${request.static_url('sapyens:static/bootstrap/css/bootstrap.min.css')}" charset="UTF-8" />
         <%block name="links"></%block>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="UTF-8"></script>
-        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/js/bootstrap.min.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="${request.static_url('sapyens:static/js/jquery.min.js')}" type="text/javascript" charset="UTF-8"></script>
+        <script src="${request.static_url('sapyens:static/bootstrap/js/bootstrap.min.js')}" type="text/javascript" charset="UTF-8"></script>
+        <%block name="scripts"></%block>
     </head>
     <body>
         ${next.body()}

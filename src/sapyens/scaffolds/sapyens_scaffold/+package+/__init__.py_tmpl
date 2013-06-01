@@ -42,6 +42,7 @@ def main (global_config, **settings):
     config.add_tween('sapyens.db.notfound_tween_factory', under = pyramid.tweens.EXCVIEW)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
+    config.include('sapyens:add_static_route')
 
     config.add_route('login', '/login')
     login_view = sapyens.views.LoginView(lambda _, request: request.registry.settings['password'])
