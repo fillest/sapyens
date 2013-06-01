@@ -2,7 +2,8 @@
 
 ## Version ?
 * Google auth
-* Distribute Bootstrap 2.3.2 and jQuery 1.10.1
+* distribute Bootstrap 2.3.2 and jQuery 1.10.1
+* minor fixes
 
 ## Version 0.2.0 (2013-05-18)
 * start to maintaing this changelog

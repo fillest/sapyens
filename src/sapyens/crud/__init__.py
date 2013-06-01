@@ -194,14 +194,14 @@ class CreateView (SubmitView):
 		return req.route_url(self.redirect_route)
 
 	def _page_title (self, _model):
-		return self.page_title or (u"create %s" % unicode(self._model.__name__)) #TODO copypaste
+		return self.page_title or (u"Create %s" % unicode(self._model.__name__)) #TODO copypaste
 
 class UpdateView (CreateView):
 	def _fetch_model (self, request):
 		return get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
 
 	def _page_title (self, model):
-		return (self.page_title or (u"edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id) #TODO copypaste
+		return (self.page_title or (u"Edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id) #TODO copypaste
 
 class EditView (CrudView):
 	submit_path_route = None
@@ -215,7 +215,7 @@ class EditView (CrudView):
 			'form': self._form_class(obj = model, **self._produce_extra_form_args(self._form_class, request)),
 			'submit_path': request.route_path(self.submit_path_route, id = model.id),
 			'list_route': self.list_route,
-			'page_title': (self.page_title or (u"edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id)
+			'page_title': (self.page_title or (u"Edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id),
 		}
 
 	def include_to_config (self, config):
@@ -229,7 +229,7 @@ class NewView (EditView):
 			'form': self._form_class(**self._produce_extra_form_args(self._form_class, request)),
 			'submit_path': request.route_path(self.submit_path_route),
 			'list_route': self.list_route,
-			'page_title': self.page_title or (u"create %s" % unicode(self._model.__name__))
+			'page_title': self.page_title or (u"Create %s" % unicode(self._model.__name__)),
 		}
 
 class ListView (CrudView):
