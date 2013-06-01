@@ -2,7 +2,7 @@
 
 ## Version ?
 * Google auth
-* distribute Bootstrap 2.3.2 and jQuery 1.10.1
+* bundle Bootstrap 2.3.2 and jQuery 1.10.1
 * minor fixes
 * .crud: ability to change base template asset for templates
 
