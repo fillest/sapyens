@@ -4,7 +4,8 @@
 
 
 <style type="text/css">
-	.sapyens-crud-form input {width: 700px;}
+	##.sapyens-crud-form input {width: 700px;}
+	##.sapyens-crud-form .uneditable-input {border-color: #fff; box-shadow: none;}
 </style>
 
 
@@ -46,9 +47,9 @@
 						
 						<div class="controls">
 							% if field.widget is False:
-								<div>${field.data}</div>
+								<span class="input-xxlarge uneditable-input">${field.data}</span>
 							% else:
-								${field}
+								${field(class_ = 'input-xxlarge')}
 							% endif
 
 							% if field.errors:
