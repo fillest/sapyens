@@ -197,7 +197,7 @@ class GoogleRedirectView (object):
 	def _make_state (self, request):
 		return 'test'
 
-class GoogleRedirectViewCallbackView (object):
+class GoogleCallbackView (object):
 	def __init__ (self, app_id, make_redirect_uri, app_secret, json_loads = json.loads):
 		self.app_id = app_id
 		self.make_redirect_uri = make_redirect_uri
