@@ -13,7 +13,7 @@ pyramid.includes =
 #debugtoolbar.hosts = 127.0.0.1 ::1
 #debugtoolbar.enabled = false
 
-sqlalchemy.url = postgresql+psycopg2://postgres:password@localhost/{{project}}
+sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{project}}
 
 sapyens.migrate.dir_path = {{project}}/db/migrations
 sapyens.db.enable_setattr_check = true

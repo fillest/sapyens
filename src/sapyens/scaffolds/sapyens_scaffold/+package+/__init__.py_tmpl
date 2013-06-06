@@ -42,14 +42,10 @@ def main (global_config, **settings):
     config.add_tween('sapyens.db.notfound_tween_factory', under = pyramid.tweens.EXCVIEW)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.include('sapyens:add_static_route')
+    #config.include('sapyens:add_static_route')
 
-    config.add_route('login', '/login')
-    login_view = sapyens.views.LoginView(lambda _, request: request.registry.settings['password'])
-    config.add_view(login_view, route_name = 'login', renderer = 'sapyens.views:templates/login.mako')
-    config.add_forbidden_view(login_view, renderer = 'sapyens.views:templates/login.mako')
-    config.add_route('logout', '/logout')
-    config.add_view(sapyens.views.LogoutView('root'), route_name = 'logout', permission = 'view')
+    #config.add_route('logout', '/logout')
+    #config.add_view(sapyens.views.LogoutView('root'), route_name = 'logout', permission = 'view')
 
     #config.add_route('admin', '/admin')
     #config.add_view(sapyens.crud.IndexView(), renderer = 'sapyens.crud:templates/admin/index.mako', route_name = 'admin') #, permission = 'admin'
@@ -72,4 +68,4 @@ def _add_renderer_globals (event):
     event['authenticated_userid'] = authenticated_userid
 
 def group_finder (userid, request):
-    return ['group:admin'] if userid == 'test' else []
+    return ['group:admin'] if userid == 'test' else None
