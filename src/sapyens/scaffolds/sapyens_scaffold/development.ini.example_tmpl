@@ -1,5 +1,5 @@
 [app:main]
-use = egg:{{project}}
+use = egg:{{package}}
 
 pyramid.reload_templates = true
 pyramid.debug_authorization = false
@@ -13,13 +13,13 @@ pyramid.includes =
 #debugtoolbar.hosts = 127.0.0.1 ::1
 #debugtoolbar.enabled = false
 
-sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{project}}
+sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{package}}
 
-sapyens.migrate.dir_path = {{project}}/db/migrations
+sapyens.migrate.dir_path = {{package}}/db/migrations
 sapyens.db.enable_setattr_check = true
 
-mako.directories = {{project}}:templates
-mako.module_directory = /tmp/projects/{{project}}/compiled_templates
+mako.directories = {{package}}:templates
+mako.module_directory = /tmp/projects/{{package}}/compiled_templates
 mako.strict_undefined = true
 
 password = test

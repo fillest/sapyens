@@ -1,6 +1,6 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-import {{project}}.db
+import {{package}}.db
 import pyramid.session
 import pyramid.authorization
 import pyramid.authentication
@@ -16,7 +16,7 @@ import sapyens.helpers
 def main (global_config, **settings):
     sapyens.helpers.set_utc_timezone()
 
-    {{project}}.db.init(engine_from_config(settings, 'sqlalchemy.'), settings)
+    {{package}}.db.init(engine_from_config(settings, 'sqlalchemy.'), settings)
 
     config = Configurator(
         settings = settings,

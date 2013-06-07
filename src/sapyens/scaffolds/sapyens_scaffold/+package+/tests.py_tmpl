@@ -28,4 +28,4 @@ from pyramid import testing
 #         request = testing.DummyRequest()
 #         info = my_view(request)
 #         self.assertEqual(info['one'].name, 'one')
-#         self.assertEqual(info['project'], '{{project}}')
+#         self.assertEqual(info['project'], '{{package}}')

@@ -4,21 +4,25 @@
 		<meta charset="UTF-8" />
 
 		<title>
-			{{project}}: <%block name="title">untitled</%block>
+			<%block name="title">untitled</%block> ← {{project}}
 		</title>
 
-		## <link rel="stylesheet" href="..." charset="UTF-8" />
+		##<link rel="shortcut icon" type="image/x-icon" href="${request.static_url('{{package}}:static/favicon_{{package}}.ico')}">
 
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" />
 		<%block name="links"></%block>
 
-		## <script src="..." type="text/javascript" charset="UTF-8"></script>
+		<script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+		<%block name="scripts"></%block>
 	</head>
 	<body>
-		<div style="text-align: right;">
-			%if authenticated_userid(request):
-				<a href="${request.route_path('logout')}">Logout</a>
-			%endif
-		</div>
+		##<div style="text-align: right;">
+		##	%if authenticated_userid(request):
+		##		<a href="${request.route_path('logout')}">Logout</a>
+		##	%endif
+		##</div>
 
 		${next.body()}
 	</body>
