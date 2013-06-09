@@ -1,7 +1,6 @@
 import contextlib
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPUnprocessableEntity
 import pyramid.security
-import operator
 import urllib
 import urllib2
 import urlparse
@@ -13,7 +12,7 @@ class LogoutView (object):
 		self._redirect_route = redirect_route
 
 	def __call__ (self, request):
-		#TODO csrf?
+		#TODO csrf? post?
 		response = HTTPFound(location = self._make_redirect_url(request))
 		return self._updated_response(response, request)
 
@@ -26,6 +25,10 @@ class LogoutView (object):
 	def _updated_response (self, response, request):
 		response.headerlist.extend(pyramid.security.forget(request))
 		return response
+
+def add_logout_route_view (config, redirect_route, permission = None, route_name = 'logout', path = '/logout'):
+	config.add_route(route_name, path)
+	config.add_view(LogoutView(redirect_route), route_name = route_name, permission = permission)
 
 class LoginView (object):
 	route_name = 'login'
