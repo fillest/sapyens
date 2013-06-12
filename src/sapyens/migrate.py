@@ -1,3 +1,4 @@
+#coding: utf-8
 import argparse
 import pyramid.paster
 import logging.config
@@ -45,6 +46,12 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 			return _create_next_migration_file(avail_ids, args.create_next, path, log)
 
 		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
+
+		if args.show:
+			for path in sorted(avail_ids):
+				print (u"✓" if path in applied_ids else " ") + " " + path
+			return
+
 		pending_ids = sorted(avail_ids - applied_ids)
 		ids_to_force_write = set(_try_process_force_write(args.force_write, avail_paths, log))
 
@@ -87,6 +94,7 @@ def _parse_args ():
 		help = "write migration records to DB without applying their content", default = [])
 	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
 		help = "create next migration file and terminate")
+	parser.add_argument('-s', '--show', action = 'store_true', help = "Show available/applied migrations and exit")
 	return parser.parse_args()
 
 def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
