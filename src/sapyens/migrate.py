@@ -15,15 +15,16 @@ import sys
 MIGRATION_TABLE_SQL = """
 	CREATE TABLE {table_name}
 	(
-	   id text,
-	   applied_time timestamp without time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+		id text,
+		applied_time timestamp without time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+	
 		PRIMARY KEY (id)
 	);
 """
 
 DEFAULT_MIGRATION_TABLE_NAME = 'migrations'
 
-RE_ID_N = re.compile(r'^(\d+)')
+ID_NUMBER_RE = re.compile(r'^(\d+)')
 
 
 def _make_entry_point_function (get_migration_dir_path, get_migration_table_name):
@@ -31,7 +32,9 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 		args = _parse_args()
 
 		pyramid.paster.setup_logging(args.config)
-		log = logging.getLogger(__name__) #TODO move to module-level?
+		#can't just move logger to module level, setup_logging disables it
+		log = logging.getLogger(__name__)
+
 		settings = pyramid.paster.get_appsettings(args.config)
 		db_session = sessionmaker(bind = engine_from_config(settings, 'sqlalchemy.'))()
 
@@ -41,19 +44,22 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 
 		avail_paths = set(glob.glob(path + '/*.sql'))
 		avail_ids = set(map(_path_to_id, avail_paths))
-
-		if args.create_next:
-			return _create_next_migration_file(avail_ids, args.create_next, path, log)
-
 		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
 
 		if args.show:
-			for path in sorted(avail_ids):
-				print (u"✓" if path in applied_ids else " ") + " " + path
+			for mid in sorted(avail_ids):
+				print "%s %s %s" % ((u"✓" if mid in applied_ids else " "),  mid, _sql_fpath(path, mid).rjust(70))
 			return
 
+		new_id = None
+		if args.create_next:
+			new_id = _create_next_migration_file(avail_ids, args.create_next, path, log)
+
 		pending_ids = sorted(avail_ids - applied_ids)
-		ids_to_force_write = set(_try_process_force_write(args.force_write, avail_paths, log))
+		ids_to_force_write = set(_try_process_force_write(args.force_write or [], avail_paths, log))
+		if new_id and args.force_write is not None:
+			ids_to_force_write.add(new_id)
+			pending_ids.append(new_id)
 
 		_apply_migrations(pending_ids, path, table_name, db_session, log, ids_to_force_write)
 	return run
@@ -71,16 +77,19 @@ def make_entry_point (migration_dir, migration_table_name = DEFAULT_MIGRATION_TA
 def _create_next_migration_file (avail_ids, name, path, log):
 	if avail_ids:
 		last = sorted(avail_ids)[-1]
-		match = RE_ID_N.match(last).group(1)
+		match = ID_NUMBER_RE.match(last).group(1)
 		i_len = len(match)
 		next_i = int(match) + 1
 	else:
 		next_i = 1
 		i_len = len('000%s' % next_i)
 	
-	path = '%s/%s_%s.sql' % (path, str(next_i).zfill(i_len), name.replace(" ", "_"))
+	mid = "%s_%s" % (str(next_i).zfill(i_len), name.replace(" ", "_"))
+	path = '%s/%s.sql' % (path, mid)
 	log.info("Creating file " + path)
 	os.close(os.open(path, os.O_CREAT | os.O_EXCL))
+
+	return mid
 
 
 def _assert_migration_dir_exists (path):
@@ -91,9 +100,9 @@ def _parse_args ():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('config', help = "config file")
 	parser.add_argument('-fw', '--force-write', nargs = '*', metavar = 'MIGRATION_INDEX_OR_FILE_PATH',
-		help = "write migration records to DB without applying their content", default = [])
+		help = "write migration records to DB without applying their content (can be combined without providing id with --create-next)")
 	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
-		help = "create next migration file and terminate")
+		help = "create next migration file")
 	parser.add_argument('-s', '--show', action = 'store_true', help = "Show available/applied migrations and exit")
 	return parser.parse_args()
 
@@ -105,7 +114,7 @@ def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
 		if ('relation "%s" does not exist' % migration_table_name) in str(exception):
 			db_session.rollback()
 
-			log.info("Creating migration table '%s'" % migration_table_name)
+			log.info("Creating migration table '%s'..." % migration_table_name)
 			db_session.execute(MIGRATION_TABLE_SQL.format(table_name = migration_table_name))
 			db_session.commit()
 		else:
@@ -116,7 +125,7 @@ def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log
 	if migration_ids:
 		for migration_id in migration_ids:
 			sql_fpath = _sql_fpath(migration_dir, migration_id)
-			log.info("Applying migration " + sql_fpath)
+			log.info("Applying migration '%s'..." % sql_fpath)
 			with open(sql_fpath, 'rb') as f:
 				if migration_id not in migration_ids_to_force_write:
 					db_session.execute(f.read())
@@ -142,7 +151,7 @@ def _try_process_force_write (input_migrations, avail_paths, log):
 		else:
 			if m.isdigit():
 				def match_index (path, m=m):
-					return int(RE_ID_N.match(_path_to_id(path)).group(1)) == int(m)
+					return int(ID_NUMBER_RE.match(_path_to_id(path)).group(1)) == int(m)
 				paths = filter(match_index, avail_paths)
 
 				if paths:
