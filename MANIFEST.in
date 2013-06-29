@@ -1,2 +1,3 @@
 include *.txt *.md
-recursive-include src *.mako
+recursive-include src *.mako *css *.png *.js
+recursive-include src/sapyens/scaffolds/sapyens_scaffold *
