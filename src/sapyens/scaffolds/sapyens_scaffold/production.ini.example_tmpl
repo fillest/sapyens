@@ -24,7 +24,7 @@ session.secret = test
 [server:main]
 use = egg:waitress#main
 host = 127.0.0.1
-port = 6544
+port = 6543
 
 
 [loggers]

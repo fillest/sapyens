@@ -10,4 +10,4 @@ class Model (sapyens.db.Reflected, QueryPropertyMixin, ScopedSessionMixin):
 def init (engine, settings):
 	sapyens.db.init(engine, DBSession, Model,
 		import_before_reflect = '{{package}}.db.models',
-		enable_setattr_check = asbool(settings.get('sapyens.db.enable_setattr_check', True)))
+		enable_setattr_check = asbool(settings.get('sapyens.db.enable_setattr_check', False)))
