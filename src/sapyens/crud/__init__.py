@@ -313,8 +313,13 @@ class AdminCrud (Crud):
 	show_in_admin_index = True
 
 class IndexView (object):
+	base_template = 'sapyens.crud:templates/admin/base.mako'
+
 	def __call__ (self, request):
-		return {'cruds': Crud._registered_cruds}
+		return {
+			'cruds': Crud._registered_cruds,
+			'base_template': self.base_template,
+		}
 
 def make_view_classes (pathname, db_session_, permission_ = 'admin',
 		new = NewView, edit = True, create = True, update = True, list_ = True, delete = True,
