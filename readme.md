@@ -6,7 +6,7 @@
 * sapyens.helpers — various helpers
 * sapyens.migrate — plain SQL migration management
 * sapyens.script — console script base
-* sapyens.views — other generic views
+* sapyens.views — various generic views
 * Pyramid scaffold for Sapyens-based projects
 
 ## Setup
