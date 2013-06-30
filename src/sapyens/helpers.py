@@ -1,9 +1,8 @@
 import os
 import time
+import contextlib
 import venusian
 from pyramid.httpexceptions import HTTPNotFound
-import os
-import time
 
 
 class add_route (object):
@@ -53,3 +52,12 @@ def raise_not_found ():
 def set_utc_timezone ():
 	os.environ['TZ'] = 'UTC'
 	time.tzset()
+
+@contextlib.contextmanager
+def change_cwd (path):
+	old_dir = os.getcwd()
+	os.chdir(path)
+	try:
+		yield old_dir
+	finally:
+		os.chdir(old_dir)
