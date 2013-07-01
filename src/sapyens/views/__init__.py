@@ -5,30 +5,37 @@ import urllib
 import urllib2
 import urlparse
 import json
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 class LogoutView (object):
-	def __init__ (self, redirect_route = None):
-		self._redirect_route = redirect_route
+	route_name = 'logout'
+	route_path = '/logout'
+	permission = None
+	redirect_route = None
 
-	def __call__ (self, request):
-		#TODO csrf? post?
-		response = HTTPFound(location = self._make_redirect_url(request))
-		return self._updated_response(response, request)
+	@classmethod
+	def include_to_config (cls, config):
+		config.add_route(cls.route_name, cls.route_path)
+		config.add_view(cls(), route_name = cls.route_name, permission = cls.permission)
+
+	def __call__ (self, context, request):
+		url = self._make_redirect_url(request)
+		response = HTTPFound(location = url)
+		return self._update_response(response, request)
 
 	def _make_redirect_url (self, request):
-		if self._redirect_route:
-			return request.route_url(self._redirect_route)
+		if self.redirect_route:
+			return request.route_url(self.redirect_route)
 		else:
 			return request.application_url
 
-	def _updated_response (self, response, request):
+	def _update_response (self, response, request):
 		response.headerlist.extend(pyramid.security.forget(request))
 		return response
-
-def add_logout_route_view (config, redirect_route, permission = None, route_name = 'logout', path = '/logout'):
-	config.add_route(route_name, path)
-	config.add_view(LogoutView(redirect_route), route_name = route_name, permission = permission)
 
 class LoginView (object):
 	route_name = 'login'
