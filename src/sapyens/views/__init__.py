@@ -1,11 +1,13 @@
 import contextlib
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPUnprocessableEntity
-import pyramid.security
 import urllib
 import urllib2
 import urlparse
 import json
 import logging
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound, HTTPForbidden, HTTPUnprocessableEntity
+from pyramid.response import Response
+import pyramid.security
+from pyramid.settings import asbool
 
 
 log = logging.getLogger(__name__)
@@ -291,8 +293,10 @@ class GoogleCallbackView (object):
 		assert user_info['verified_email'], user_info
 
 		res = self._on_success(request, user_info)
-
-		return self._remember_and_redirect(request, user_info, res)
+		if isinstance(res, Response):
+			return res
+		else:
+			return self._remember_and_redirect(request, user_info, res)
 
 	def _remember_and_redirect (self, request, user_info, res):
 		url = request.session.pop(LoginView.redirect_url_session_key, None)
@@ -345,13 +349,16 @@ class GoogleCallbackView (object):
 				#TODO show message and suggest linking
 				raise NotImplementedError("%s != google" % user.auth_type)
 		else:
-			#TODO kinda copypaste from registration
-			user = self.user_model_class(
-				email = user_info['email'],
-				password = '',
-				group = 'normal', #TODO make default and customizable
-				auth_type = 'google',
-			).add()
+			if asbool(request.registry.settings.get('sign_in.services.register_nonexistent', True)):
+				#TODO kinda copypaste from registration
+				user = self.user_model_class(
+					email = user_info['email'],
+					password = '',
+					group = 'normal', #TODO make default and customizable
+					auth_type = 'google',
+				).add()
+			else:
+				return Response(body = 'Registration is disabled', content_type = 'text/plain')
 
 		return user
 
