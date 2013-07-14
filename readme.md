@@ -22,7 +22,7 @@ To install development version:
 * [github.com/fillest/sapyens/wiki/Docs](https://github.com/fillest/sapyens/wiki/Docs)
 * [Changelog](https://github.com/fillest/sapyens/blob/master/changelog.md)
 
-## Issues
+## Feedback
 Please submit any bugs or feedback to [the issue tracker](https://github.com/fillest/sapyens/issues)
 
 ## License
