@@ -76,15 +76,17 @@ class LoginView (object):
 			else:
 				auth_failed = True
 
-		return {
+		template_vars = {
 			'auth_failed': auth_failed,
 			'data': data,
 			'base_template': self.base_template,
 			'page_title': self.page_title,
 			'enable_email_form': self.enable_email_form,
 			'enable_services': self.enable_services,
-			'service_redirect_urls': {'google': request.route_path(GoogleSignInRedirectView.route_name)},
 		}
+		if self.enable_services:
+			template_vars['service_redirect_urls'] = {'google': request.route_path(GoogleSignInRedirectView.route_name)}
+		return template_vars
 
 	def _process_input (self, context, request):
 		return {
