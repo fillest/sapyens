@@ -3,6 +3,7 @@
 ## Overview
 * sapyens.crud — customizable generic views and templates for CRUD building
 * sapyens.db — SQLAlchemy helpers (initialization, base classes, etc.)
+* sapyens.deploy — Fabric deploy helpers
 * sapyens.helpers — various helpers
 * sapyens.migrate — plain SQL migration management
 * sapyens.script — console script base
