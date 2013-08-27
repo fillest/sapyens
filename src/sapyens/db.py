@@ -28,10 +28,15 @@ class Reflected (Base):
 	__abstract__ = True
 
 	def __repr__ (self):
+		pk_repr = getattr(self, 'id', None)
+		if not pk_repr:
+			pkeys = class_mapper(self.__class__).primary_key
+			pk_repr = ','.join(u"%s=%s" % (key.name, getattr(self, key.name)) for key in pkeys)
+
 		return u"<{module}.{class_name} #{id}>".format(
 			module = self.__class__.__module__,
 			class_name = self.__class__.__name__,
-			id = self.id,
+			id = pk_repr,
 		)
 
 	@classmethod
