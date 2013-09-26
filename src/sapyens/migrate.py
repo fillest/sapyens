@@ -12,15 +12,28 @@ import re
 import sys
 
 
-MIGRATION_TABLE_SQL = """
-	CREATE TABLE {table_name}
-	(
-		id text,
-		applied_time timestamp without time zone NOT NULL DEFAULT timezone('utc'::text, now()),
-	
-		PRIMARY KEY (id)
-	);
-"""
+MIGRATION_TABLE_SQL = {
+	'postgresql': 
+		"""
+			CREATE TABLE {table_name}
+			(
+				id text,
+				applied_time timestamp without time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+			
+				PRIMARY KEY (id)
+			);
+		""",
+	'mysql':
+		"""
+			CREATE TABLE {table_name}
+			(
+				id VARCHAR (200),
+				applied_time TIMESTAMP NOT NULL DEFAULT NOW(),
+
+				PRIMARY KEY(id)
+			);
+		""",
+}
 
 DEFAULT_MIGRATION_TABLE_NAME = 'migrations'
 
@@ -44,7 +57,7 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 
 		avail_paths = set(glob.glob(path + '/*.sql'))
 		avail_ids = set(map(_path_to_id, avail_paths))
-		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log)
+		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log, args.engine)
 
 		if args.show:
 			for mid in sorted(avail_ids):
@@ -104,9 +117,10 @@ def _parse_args ():
 	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
 		help = "create next migration file")
 	parser.add_argument('-s', '--show', action = 'store_true', help = "Show available/applied migrations and exit")
+	parser.add_argument('-e', '--engine', help = "select your database engine type for creating migrations history table if it does not exist")
 	return parser.parse_args()
 
-def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
+def _get_applied_ids_or_create_table (migration_table_name, db_session, log, engine):
 	applied_ids = set()
 	try:
 		applied_ids = set(id for (id,) in db_session.execute('SELECT id FROM %s' % migration_table_name))
@@ -114,12 +128,38 @@ def _get_applied_ids_or_create_table (migration_table_name, db_session, log):
 		if ('relation "%s" does not exist' % migration_table_name) in str(exception):
 			db_session.rollback()
 
-			log.info("Creating migration table '%s'..." % migration_table_name)
-			db_session.execute(MIGRATION_TABLE_SQL.format(table_name = migration_table_name))
-			db_session.commit()
+			_create_migration_table(migration_table_name, db_session, log, engine)
 		else:
 			raise
 	return applied_ids
+
+def _engine_choice_dialog ():
+	choice = raw_input("""
+		Migration history table is not exist. 
+		Please, enter an appropriate number of your database engine type:
+		[1]. PostgreSQL
+		[2]. MySQL\n
+	""")
+
+	VALID_CHOICES = {
+		'1': 'postgresql',
+		'2': 'mysql',
+	}
+
+	if choice not in VALID_CHOICES:
+		print 'Incorrect choice.\n'
+		return _engine_choice_dialog()
+
+	return VALID_CHOICES[choice]
+
+def _create_migration_table (migration_table_name, db_session, log, engine):
+	if engine not in MIGRATION_TABLE_SQL:
+		engine = _engine_choice_dialog()
+
+	sql = MIGRATION_TABLE_SQL[engine]
+	log.info("Creating migration table '%s'..." % migration_table_name)
+	db_session.execute(sql.format(table_name = migration_table_name))
+	db_session.commit()
 
 def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log, migration_ids_to_force_write):
 	if migration_ids:

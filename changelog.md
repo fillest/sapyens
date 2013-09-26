@@ -1,5 +1,8 @@
 # Sapyens changelog
 
+## Version ? (2013-09-26)
+* .migrate: ability (with optional flag) to choose database engine
+
 ## Version ?
 * Google auth
 * bundle Bootstrap 2.3.2 and jQuery 1.10.1
