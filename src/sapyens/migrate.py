@@ -24,8 +24,8 @@ MIGRATION_TABLE_SQL = {
 			);
 		""",
 	'mysql':
-                # MySQL converts TIMESTAMP values from the current time zone to UTC for storage, and back from UTC to the current time zone for retrieval
-                # http://dev.mysql.com/doc/refman/5.5/en/datetime.html
+		# MySQL converts TIMESTAMP values from the current time zone to UTC for storage, and back from UTC to the current time zone for retrieval
+		# http://dev.mysql.com/doc/refman/5.5/en/datetime.html
 		"""
 			CREATE TABLE {table_name}
 			(

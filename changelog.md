@@ -1,13 +1,11 @@
 # Sapyens changelog
 
-## Version ? (2013-09-26)
-* .migrate: ability (with optional flag) to choose database engine
-
 ## Version ?
 * Google auth
 * bundle Bootstrap 2.3.2 and jQuery 1.10.1
 * minor fixes
 * .crud: ability to change base template asset for templates
+* .migrate: ability (with optional flag) to choose database engine
 
 ## Version 0.2.0 (2013-05-18)
 * start to maintaing this changelog
