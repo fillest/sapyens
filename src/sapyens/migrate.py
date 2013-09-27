@@ -24,11 +24,13 @@ MIGRATION_TABLE_SQL = {
 			);
 		""",
 	'mysql':
+                # MySQL converts TIMESTAMP values from the current time zone to UTC for storage, and back from UTC to the current time zone for retrieval
+                # http://dev.mysql.com/doc/refman/5.5/en/datetime.html
 		"""
 			CREATE TABLE {table_name}
 			(
 				id VARCHAR (200),
-				applied_time TIMESTAMP NOT NULL DEFAULT NOW(),
+				applied_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
 				PRIMARY KEY(id)
 			);
@@ -135,7 +137,7 @@ def _get_applied_ids_or_create_table (migration_table_name, db_session, log, eng
 
 def _engine_choice_dialog ():
 	choice = raw_input("""
-		Migration history table is not exist. 
+		Migration history table haven't been created in your database yet.
 		Please, enter an appropriate number of your database engine type:
 		[1]. PostgreSQL
 		[2]. MySQL\n
