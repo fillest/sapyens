@@ -136,12 +136,12 @@ def _get_applied_ids_or_create_table (migration_table_name, db_session, log, eng
 	return applied_ids
 
 def _engine_choice_dialog ():
-	choice = raw_input("""
-		Migration history table haven't been created in your database yet.
-		Please, enter an appropriate number of your database engine type:
-		[1]. PostgreSQL
-		[2]. MySQL\n
-	""")
+	choice = raw_input("""\
+Migration history table haven't been created in your database yet.
+Please, enter an appropriate number of your database engine type:
+1 PostgreSQL
+2 MySQL
+> """)
 
 	VALID_CHOICES = {
 		'1': 'postgresql',
@@ -149,7 +149,7 @@ def _engine_choice_dialog ():
 	}
 
 	if choice not in VALID_CHOICES:
-		print 'Incorrect choice.\n'
+		print 'Invalid choice.\n'
 		return _engine_choice_dialog()
 
 	return VALID_CHOICES[choice]
