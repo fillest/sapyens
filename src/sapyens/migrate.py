@@ -170,7 +170,8 @@ def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log
 			log.info("Applying migration '%s'..." % sql_fpath)
 			with open(sql_fpath, 'rb') as f:
 				if migration_id not in migration_ids_to_force_write:
-					db_session.execute(f.read())
+					code = f.read().decode('utf-8')
+					db_session.execute(code)
 				db_session.execute('INSERT INTO %s (id) VALUES (:id)' % table_name, {
 					'id': migration_id,
 				})
@@ -206,3 +207,7 @@ def _try_process_force_write (input_migrations, avail_paths, log):
 					raise_invalid(m)
 			else:
 				raise_invalid(m)
+
+
+if __name__ == '__main__':
+	run()

@@ -1,3 +1,4 @@
+#coding: utf-8
 import unittest
 from sapyens import crud
 from mock import MagicMock, NonCallableMagicMock
