@@ -4,7 +4,8 @@ from mock import MagicMock, NonCallableMagicMock
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Boolean, Text
 from wtforms.ext.csrf.fields import CSRFTokenField
-from wtforms.fields.simple import TextField, BooleanField
+from wtforms.fields.simple import BooleanField
+from wtforms.fields.core import StringField
 
 
 class TestMakeForm (unittest.TestCase):
@@ -20,8 +21,8 @@ class TestMakeForm (unittest.TestCase):
 
 		expected_fields = [
 			CSRFTokenField,
-			TextField,
-			TextField,
+			StringField,
+			StringField,
 			BooleanField,
 		]
 		self.assertEqual(len(fields), len(expected_fields))
