@@ -113,13 +113,14 @@ def _assert_migration_dir_exists (path):
 
 def _parse_args ():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('config', help = "config file")
 	parser.add_argument('-fw', '--force-write', nargs = '*', metavar = 'MIGRATION_INDEX_OR_FILE_PATH',
-		help = "write migration records to DB without applying their content (can be combined without providing id with --create-next)")
+		help = "These migrations will be marked as applied without actually applying them"
+			" (can be combined with --create-next without providing id)")
 	parser.add_argument('-cn', '--create-next', metavar = 'NAME',
-		help = "create next migration file")
+		help = "Create a migration file with next index")
 	parser.add_argument('-s', '--show', action = 'store_true', help = "Show available/applied migrations and exit")
 	parser.add_argument('-e', '--engine', help = "select your database engine type for creating migrations history table if it does not exist")
+	parser.add_argument('config', help = "config file")
 	return parser.parse_args()
 
 def _get_applied_ids_or_create_table (migration_table_name, db_session, log, engine):
