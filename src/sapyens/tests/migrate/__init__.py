@@ -10,8 +10,8 @@ def stub_loader_for_migrate ():
 	pass
 
 class TestMigrate (unittest.TestCase):
-	def test_migration_with_utf8 (self):
-		cfg_path = 'src/sapyens/tests/migrate_test.ini'
+	def test_utf8_content (self):
+		cfg_path = 'src/sapyens/tests/migrate/utf8_content.ini'
 		settings = pyramid.paster.get_appsettings(cfg_path)
 		db_session = sessionmaker(bind = engine_from_config(settings, 'sqlalchemy.'))()
 
