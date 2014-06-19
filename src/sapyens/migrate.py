@@ -1,15 +1,16 @@
 #coding: utf-8
 import argparse
-import pyramid.paster
 import logging.config
-from sqlalchemy import engine_from_config
-from sqlalchemy.orm import sessionmaker
-import sqlalchemy.exc
 import glob
 import os.path
 import logging
 import re
 import sys
+import itertools
+from sqlalchemy import engine_from_config
+from sqlalchemy.orm import sessionmaker
+import sqlalchemy.exc
+import pyramid.paster
 
 
 MIGRATION_TABLE_SQL = {
@@ -71,10 +72,17 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 			new_id = _create_next_migration_file(avail_ids, args.create_next, path, log)
 
 		pending_ids = sorted(avail_ids - applied_ids)
-		ids_to_force_write = set(_try_process_force_write(args.force_write or [], avail_paths, log))
+		ids_to_force_write = set(_try_input_to_ids(args.force_write or [], avail_paths, log))
 		if new_id and args.force_write is not None:
 			ids_to_force_write.add(new_id)
 			pending_ids.append(new_id)
+
+		if args.final_to_apply:
+			[id_final] = list(_try_input_to_ids(args.final_to_apply, avail_paths, log))
+			if id_final not in pending_ids:
+				log.error("Migration '%s' is not pending" % args.final_to_apply)
+				sys.exit(1)
+			pending_ids = list(itertools.takewhile(lambda mid: mid != id_final, pending_ids)) + [id_final]
 
 		_apply_migrations(pending_ids, path, table_name, db_session, log, ids_to_force_write)
 	return run
@@ -120,6 +128,7 @@ def _parse_args ():
 		help = "Create a migration file with next index")
 	parser.add_argument('-s', '--show', action = 'store_true', help = "Show available/applied migrations and exit")
 	parser.add_argument('-e', '--engine', help = "select your database engine type for creating migrations history table if it does not exist")
+	parser.add_argument('-f', '--final-to-apply', help = "Stop applying after this migration (by default all pending migrations get applied)")
 	parser.add_argument('config', help = "config file")
 	return parser.parse_args()
 
@@ -164,15 +173,16 @@ def _create_migration_table (migration_table_name, db_session, log, engine):
 	db_session.execute(sql.format(table_name = migration_table_name))
 	db_session.commit()
 
-def _apply_migrations (migration_ids, migration_dir, table_name, db_session, log, migration_ids_to_force_write):
-	if migration_ids:
-		for migration_id in migration_ids:
-			sql_fpath = _sql_fpath(migration_dir, migration_id)
-			log.info("Applying migration '%s'..." % sql_fpath)
-			with open(sql_fpath, 'rb') as f:
-				if migration_id not in migration_ids_to_force_write:
+def _apply_migrations (ids, migration_dir, table_name, db_session, log, ids_to_force_write):
+	if ids:
+		for migration_id in ids:
+			fpath = _sql_fpath(migration_dir, migration_id)
+			log.info("Applying migration '%s'..." % fpath)
+			with open(fpath, 'rb') as f:
+				if migration_id not in ids_to_force_write:
 					code = f.read().decode('utf-8')
 					db_session.execute(code)
+				
 				db_session.execute('INSERT INTO %s (id) VALUES (:id)' % table_name, {
 					'id': migration_id,
 				})
@@ -185,7 +195,7 @@ def _path_to_id (path):
 	migration_id, _ext = os.path.splitext(os.path.basename(path))
 	return migration_id
 
-def _try_process_force_write (input_migrations, avail_paths, log):
+def _try_input_to_ids (input_migrations, avail_paths, log):
 	def raise_invalid (m):
 		raise ValueError(u"Invalid migration index or path: %s" % m)
 
