@@ -78,7 +78,7 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 			pending_ids.append(new_id)
 
 		if args.final_to_apply:
-			[id_final] = list(_try_input_to_ids(args.final_to_apply, avail_paths, log))
+			[id_final] = list(_try_input_to_ids([args.final_to_apply], avail_paths, log))
 			if id_final not in pending_ids:
 				log.error("Migration '%s' is not pending" % args.final_to_apply)
 				sys.exit(1)
@@ -196,6 +196,8 @@ def _path_to_id (path):
 	return migration_id
 
 def _try_input_to_ids (input_migrations, avail_paths, log):
+	assert isinstance(input_migrations, (list, tuple)), type(input_migrations)
+
 	def raise_invalid (m):
 		raise ValueError(u"Invalid migration index or path: %s" % m)
 
