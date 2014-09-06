@@ -1,0 +1,12 @@
+pyramid
+pyramid_debugtoolbar
+pyramid_tm
+transaction
+watchdog
+SQLAlchemy
+zope.sqlalchemy
+waitress
+mako
+pyramid_mako
+psycopg2
+wtforms

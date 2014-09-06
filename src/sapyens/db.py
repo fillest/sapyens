@@ -62,7 +62,7 @@ class Reflected (Base):
 
 
 def notfound_tween_factory (handler, _registry):
-	from pyramid.httpexceptions import HTTPNotFound
+	from pyramid.httpexceptions import HTTPNotFound  #TODO (to avoid module-level import)
 
 	def tween (request):
 		try:

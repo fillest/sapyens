@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+
 set -e
 #set -x
 
 
 if [ "$#" -ne 1 ]
 then
-	echo "usage error: provide config as parameter"
+	echo "usage error: provide config as an argument"
 	exit 1
 fi
 

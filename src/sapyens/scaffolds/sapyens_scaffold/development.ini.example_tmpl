@@ -19,7 +19,7 @@ sapyens.migrate.dir_path = {{package}}/db/migrations
 sapyens.db.enable_setattr_check = true
 
 mako.directories = {{package}}:templates
-mako.module_directory = /tmp/projects/{{package}}/compiled_templates
+mako.module_directory = /tmp/mako_compiled_templates_{{package}}
 mako.strict_undefined = true
 
 password = test
