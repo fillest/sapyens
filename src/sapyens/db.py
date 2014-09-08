@@ -60,9 +60,9 @@ class Reflected (Base):
 			setattr(self, name, value)
 		return self
 
-
+#this is for Reflected.try_get. A model shouldn't raise HTTPNotFound cause it can be used without pyramid
 def notfound_tween_factory (handler, _registry):
-	from pyramid.httpexceptions import HTTPNotFound  #TODO (to avoid module-level import)
+	from pyramid.httpexceptions import HTTPNotFound  #TODO (to avoid module-level dependency) move to module-level
 
 	def tween (request):
 		try:
