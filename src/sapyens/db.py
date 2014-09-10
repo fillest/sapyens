@@ -127,6 +127,10 @@ def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_
 	if enable_setattr_check:
 		init_setattr_check(Reflected)
 
+	# Recreate the pool to close left connections (e.g. after reflection)
+	# It prevents connection sharing between later-forked server worker processes (e.g. gunicorn with preload_app)
+	DBSession.remove()
+	engine.dispose()
 
 class SetattrCheckError (Exception):
 	pass
@@ -138,7 +142,7 @@ def init_setattr_check (Reflected):
 			is_name_ok = any(name == prop.key for prop in class_mapper(self.__class__).iterate_properties)
 			if not is_name_ok:
 				raise SetattrCheckError("Attempt to set a property that is not registered with "
-					"the mapper (did you make a typo?): %s" % name)
+					"the mapper (check property name for typos): %s" % name)
 		super(Reflected, self).__setattr__(name, value)
 	Reflected.__setattr__ = __setattr__
 
