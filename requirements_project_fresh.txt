@@ -10,3 +10,4 @@ mako
 pyramid_mako
 psycopg2
 wtforms
+webtest
