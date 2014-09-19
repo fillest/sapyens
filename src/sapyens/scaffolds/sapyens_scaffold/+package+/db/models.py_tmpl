@@ -8,4 +8,4 @@ from sqlalchemy.orm import relationship
 
 # class YourModel1 (Model):
 # 	__tablename__ = 'your_table1'
-# 	your_models = relationship('YourModel', secondary = 'your__table')
+# 	your_models = relationship('YourModel', secondary = 'table__table1')
