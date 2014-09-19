@@ -41,10 +41,6 @@ class include_to_config (object):
 		return wrapped
 
 
-def get_by_id (class_, id):
-	return class_.query.filter_by(id = int(id)).first()
-
-
 def raise_not_found ():
 	raise HTTPNotFound()
 
@@ -52,6 +48,7 @@ def raise_not_found ():
 def set_utc_timezone ():
 	os.environ['TZ'] = 'UTC'
 	time.tzset()
+
 
 @contextlib.contextmanager
 def change_cwd (path):
