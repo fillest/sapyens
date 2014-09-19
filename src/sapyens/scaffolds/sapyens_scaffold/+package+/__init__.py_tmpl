@@ -5,12 +5,18 @@ import pyramid.session
 import pyramid.authorization
 import pyramid.authentication
 import pyramid.security
-from pyramid.events import BeforeRender, subscriber
-from pyramid.security import authenticated_userid, has_permission
-import pyramid.tweens
 import sapyens.views
-#import sapyens.crud
 import sapyens.helpers
+#import sapyens.crud
+
+
+class RootFactory (object):
+    __acl__ = [
+        (pyramid.security.Allow, 'group:admin', pyramid.security.ALL_PERMISSIONS),
+    ]
+
+    def __init__ (self, request):
+        pass
 
 
 def main (global_config, **settings):
@@ -29,20 +35,13 @@ def main (global_config, **settings):
         ),
         authentication_policy = pyramid.authentication.SessionAuthenticationPolicy(
             prefix = 'auth.',
-            callback = group_finder,
-            debug = False),
+            callback = simple_group_finder,
+            debug = False,
+        ),
         authorization_policy = pyramid.authorization.ACLAuthorizationPolicy(),
     )
 
-    config.set_request_property(
-        lambda request: lambda permission: has_permission(permission, request.root, request),
-        'has_permission'
-    )
-
-    config.add_tween('sapyens.db.notfound_tween_factory', under = pyramid.tweens.EXCVIEW)
-
-    config.add_static_view('static', 'static', cache_max_age=3600)
-    #config.include('sapyens:add_static_route')
+    config.add_static_view('static', 'static', cache_max_age = 3600)
 
     #config.add_route('logout', '/logout')
     #config.add_view(sapyens.views.LogoutView('root'), route_name = 'logout', permission = 'view')
@@ -54,18 +53,5 @@ def main (global_config, **settings):
 
     return config.make_wsgi_app()
 
-
-class RootFactory (object):
-    __acl__ = [
-        (pyramid.security.Allow, 'group:admin', pyramid.security.ALL_PERMISSIONS),
-    ]
-
-    def __init__ (self, request):
-        pass
-
-@subscriber(BeforeRender)
-def _add_renderer_globals (event):
-    event['authenticated_userid'] = authenticated_userid
-
-def group_finder (userid, request):
-    return ['group:admin'] if userid == 'test' else None
+def simple_group_finder (userid, request):
+    return ['group:admin'] if userid == 'admin' else None

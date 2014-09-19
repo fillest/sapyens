@@ -9,6 +9,7 @@ pyramid.default_locale_name = en
 pyramid.includes =
     pyramid_debugtoolbar
     pyramid_tm
+    sapyens
 
 #debugtoolbar.hosts = 127.0.0.1 ::1
 #debugtoolbar.enabled = false

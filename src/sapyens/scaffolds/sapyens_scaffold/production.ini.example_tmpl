@@ -8,8 +8,9 @@ pyramid.debug_routematch = false
 pyramid.default_locale_name = en
 pyramid.includes =
     pyramid_tm
+    sapyens
 
-sqlalchemy.url = postgresql+psycopg2://user:password@localhost/{{package}}
+sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{package}}
 sapyens.migrate.dir_path = migrations
 
 mako.directories = {{package}}:templates
