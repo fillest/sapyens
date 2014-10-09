@@ -10,8 +10,8 @@ pyramid.includes =
     pyramid_tm
     sapyens
 
-sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{package}}
-sapyens.migrate.dir_path = migrations
+sqlalchemy.url = postgresql+psycopg2://{{package}}:your_password@localhost/{{package}}
+sapyens.migrate.dir_path = {{package}}/db/migrations
 
 mako.directories = {{package}}:templates
 mako.module_directory = /tmp/mako_compiled_templates_{{package}}
