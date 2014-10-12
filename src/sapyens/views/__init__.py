@@ -124,7 +124,11 @@ class LoginView (object):
 		return url
 
 	def _verify_credentials (self, data, request):
-		return data['password'] == request.registry.settings['auth.password']
+		if 'auth.password' in request.registry.settings:
+			return data['password'] == request.registry.settings['auth.password']
+		else:
+			log.warning("auth.password not defined in settings")
+			return False
 
 	@classmethod
 	def update_response (cls, response, request, data):

@@ -43,11 +43,8 @@ def main (global_config, **settings):
 
     config.add_static_view('static', 'static', cache_max_age = 3600)
 
-    #config.add_route('logout', '/logout')
-    #config.add_view(sapyens.views.LogoutView('root'), route_name = 'logout', permission = 'view')
-
-    #config.add_route('admin', '/admin')
-    #config.add_view(sapyens.crud.IndexView(), renderer = 'sapyens.crud:templates/admin/index.mako', route_name = 'admin') #, permission = 'admin'
+    #sapyens.views.LoginView.include_to_config(config)
+    #sapyens.views.LogoutView.include_to_config(config)
 
     config.scan()
 
