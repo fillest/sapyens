@@ -1,5 +1,5 @@
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden, HTTPUnprocessableEntity
-from sapyens.helpers import get_by_id, raise_not_found
+from sapyens.helpers import raise_not_found
 from wtforms.ext import csrf
 import wtforms.widgets
 import wtforms
@@ -200,7 +200,7 @@ class CreateView (SubmitView):
 
 class UpdateView (CreateView):
 	def _fetch_model (self, request):
-		return get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
+		return self._model.get(request.matchdict['id']) or raise_not_found()
 
 	def _page_title (self, model):
 		return (self.page_title or (u"Edit %s #{id}" % unicode(self._model.__name__))).format(id = model.id) #TODO copypaste
@@ -212,7 +212,7 @@ class EditView (CrudView):
 	base_template = 'sapyens.crud:templates/admin/base.mako'
 
 	def __call__ (self, request):
-		model = get_by_id(self._model, int(request.matchdict['id'])) or raise_not_found()
+		model = self._model.get(request.matchdict['id']) or raise_not_found()
 		return {
 			'model': model,
 			'form': self._form_class(obj = model, **self._produce_extra_form_args(self._form_class, request)),
