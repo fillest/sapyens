@@ -76,6 +76,12 @@ class LoginView (object):
 			else:
 				auth_failed = True
 
+		if isinstance(context, HTTPForbidden):
+			# RFC on 401: "The response MUST include a WWW-Authenticate header field"
+			# RFC on 403: "Authorization will not help and the request SHOULD NOT be repeated."
+			# So 403 seems to be the less broken choice (everybody already do this in the wild anyway)
+			request.response.status = 403
+
 		template_vars = {
 			'auth_failed': auth_failed,
 			'data': data,
