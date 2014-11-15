@@ -41,6 +41,7 @@ MIGRATION_TABLE_SQL = {
 DEFAULT_MIGRATION_TABLE_NAME = 'migrations'
 
 ID_NUMBER_RE = re.compile(r'^(\d+)')
+ID_RE = re.compile(r'^(\d\d\d\d)_')
 
 
 def _make_entry_point_function (get_migration_dir_path, get_migration_table_name):
@@ -59,7 +60,17 @@ def _make_entry_point_function (get_migration_dir_path, get_migration_table_name
 		table_name = get_migration_table_name(settings)
 
 		avail_paths = set(glob.glob(path + '/*.sql'))
-		avail_ids = set(map(_path_to_id, avail_paths))
+		avail_ids = set()
+		invalid_ids_paths = []
+		for p in avail_paths:
+			i = _path_to_id(p)
+			if not ID_RE.match(i):
+				invalid_ids_paths.append(p)
+			else:
+				avail_ids.add(i)
+		if invalid_ids_paths:
+			log.error("These migration have invalid names:\n%s" % "\n".join(invalid_ids_paths))
+			sys.exit(1)
 		applied_ids = _get_applied_ids_or_create_table(table_name, db_session, log, args.engine)
 
 		if args.show:

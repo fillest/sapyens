@@ -74,3 +74,20 @@ class TestMigrate (unittest.TestCase):
 		else:
 			self.fail()
 		db_session.close()
+
+	def test_file_names (self):
+		cfg_path = 'src/sapyens/tests/migrate/file_names.ini'
+		settings = pyramid.paster.get_appsettings(cfg_path)
+		db_session = sessionmaker(bind = engine_from_config(settings, 'sqlalchemy.'))()
+
+		db_session.execute('drop table if exists test')
+		db_session.execute('drop table if exists migrations')
+		db_session.commit()
+
+		msg = subprocess.check_output('python src/sapyens/migrate.py %s --engine postgresql; true' % cfg_path,
+			shell = True, stderr=subprocess.STDOUT)
+		# self.assertEqual(db_session.execute('select * from test').fetchall(), [(u'1',), (u'4',)])
+		self.assertIn('test.sql', msg)
+		self.assertIn('000_test.sql', msg)
+
+		db_session.close()
