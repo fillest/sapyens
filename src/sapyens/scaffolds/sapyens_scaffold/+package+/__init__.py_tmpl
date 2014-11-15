@@ -22,7 +22,8 @@ class RootFactory (object):
 def main (global_config, **settings):
     sapyens.helpers.set_utc_timezone()
 
-    {{package}}.db.init(engine_from_config(settings, 'sqlalchemy.'), settings)
+    engine = engine_from_config(settings, 'sqlalchemy.')
+    {{package}}.db.init(engine, settings)
 
     config = Configurator(
         settings = settings,
@@ -48,7 +49,16 @@ def main (global_config, **settings):
 
     config.scan()
 
-    return config.make_wsgi_app()
+    app = config.make_wsgi_app()
+
+    # Now (as late as possible) clean anything (e.g. sockets) that must not be shared after
+    # the WSGI server (like gunicorn with preload_app) forks
+
+    # Recreate SQLAlchemy connection pool to close any left connections (e.g. after reflection)
+    {{package}}.db.DBSession.remove()
+    engine.dispose()
+
+    return app
 
 def simple_group_finder (userid, request):
     return ['group:admin'] if userid == 'admin' else None

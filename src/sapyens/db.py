@@ -117,7 +117,7 @@ def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_
 	if on_before_reflect:
 		on_before_reflect()
 
-	with engine_log_level(logging.WARN):
+	with engine_log_level(logging.WARN): #TODO not good to hardcode this
 		# if you for example use some table as relationship secondary parameter and the table is not
 		# reflected yet, you will get an error, so reflect in advance:
 		Reflected.metadata.reflect()
@@ -126,11 +126,6 @@ def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_
 
 	if enable_setattr_check:
 		init_setattr_check(Reflected)
-
-	# Recreate the pool to close left connections (e.g. after reflection)
-	# It prevents connection sharing between later-forked server worker processes (e.g. gunicorn with preload_app)
-	DBSession.remove()
-	engine.dispose()
 
 class SetattrCheckError (Exception):
 	pass
