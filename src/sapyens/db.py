@@ -3,6 +3,8 @@ from contextlib import contextmanager
 import collections
 from sqlalchemy.ext.declarative import declarative_base, DeferredReflection
 from sqlalchemy.orm import scoped_session, sessionmaker, class_mapper
+from pyramid.settings import asbool
+
 #NOTE conditional zope.sqlalchemy import in make_classes() below
 #NOTE pyramid.httpexceptions.HTTPNotFound import in notfound_tween_factory() below
 
@@ -106,7 +108,7 @@ def make_classes (use_zope_ext = True):
 		DBSession, QueryPropertyMixin, ScopedSessionMixin
 	)
 
-def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_reflect = None, enable_setattr_check = False):
+def init (engine, DBSession, Reflected, settings, on_before_reflect = None, import_before_reflect = None):
 	Reflected.metadata.bind = engine
 
 	DBSession.configure(bind = engine)
@@ -124,7 +126,7 @@ def init (engine, DBSession, Reflected, on_before_reflect = None, import_before_
 		
 		Reflected.prepare(engine)
 
-	if enable_setattr_check:
+	if asbool(settings.get('sapyens.db.enable_setattr_check', False)):
 		init_setattr_check(Reflected)
 
 class SetattrCheckError (Exception):
