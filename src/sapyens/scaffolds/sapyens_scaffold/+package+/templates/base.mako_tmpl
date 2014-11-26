@@ -12,9 +12,9 @@
 		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
 		<%block name="css"></%block>
 
-		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="${request.static_url('{{package}}:static/js/jquery-1.11.1.min.js')}"></script>
 		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+		##<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
 		<%block name="js"></%block>
 	</head>
 	<body>
