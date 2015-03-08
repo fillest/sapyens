@@ -104,6 +104,10 @@ def make_classes (use_zope_ext = True):
 			DBSession.commit()
 			return self
 
+		def refresh (self, **kwargs):
+			DBSession.refresh(self, **kwargs)
+			return self
+
 	return collections.namedtuple('Classes', ('DBSession', 'QueryPropertyMixin', 'ScopedSessionMixin'))(
 		DBSession, QueryPropertyMixin, ScopedSessionMixin
 	)
