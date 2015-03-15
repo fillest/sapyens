@@ -19,12 +19,12 @@
 * [Changelog](https://github.com/fillest/sapyens/blob/master/changelog.md)
 
 
-## Setup
-To install latest released version (from [PyPI repository](http://pypi.python.org/pypi/sapyens)):
+## Install
+Latest released version ([PyPI package](http://pypi.python.org/pypi/sapyens)):
 
     pip install sapyens
 
-To install development version:
+Development version:
 
     pip install git+https://github.com/fillest/sapyens.git
 
