@@ -26,7 +26,7 @@ Latest released version ([PyPI package](http://pypi.python.org/pypi/sapyens)):
 
 Development version:
 
-    pip install git+https://github.com/fillest/sapyens.git
+    pip install git+https://github.com/fillest/sapyens.git#egg=sapyens
 
 
 ## Feedback
