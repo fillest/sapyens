@@ -20,7 +20,7 @@
 	<body>
 		##<div style="text-align: right;">
 		##	%if request.authenticated_userid:
-		##		<a href="${request.route_path('logout')}">Logout</a>
+		##		<a href="${request.route_path('logout')}">Log out</a>
 		##	%endif
 		##</div>
 
