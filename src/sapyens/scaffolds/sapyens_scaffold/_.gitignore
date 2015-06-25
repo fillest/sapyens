@@ -1,6 +1,6 @@
 *.pyc
 .DS_Store
 *.egg-info
-venv/*
+venv
 *.ini
-.cache/*
+.cache
