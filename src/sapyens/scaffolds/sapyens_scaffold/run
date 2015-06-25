@@ -4,7 +4,7 @@ set -e
 #set -x
 
 
-if [ "$#" -ne 1 ]
+if [ "$#" -lt 1 ]
 then
 	echo "usage error: provide config as an argument"
 	exit 1
