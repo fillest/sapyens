@@ -31,6 +31,9 @@ mako.strict_undefined = true
 use = egg:waitress#main
 host = 127.0.0.1
 port = 6543
+#for https http://waitress.readthedocs.org/en/latest/#using-behind-a-reverse-proxy
+#http://waitress.readthedocs.org/en/latest/arguments.html
+trusted_proxy = 127.0.0.1
 
 
 [loggers]
