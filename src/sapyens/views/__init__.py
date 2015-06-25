@@ -116,7 +116,27 @@ class LoginView (object):
 				request.session[self.redirect_url_session_key] = url #TODO move this out somehow
 
 			#else user submitted form
-			assert url.startswith(request.application_url), url #TODO
+
+			#TODO this is buggy
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/gunicorn/workers/sync.py", line 134, in handle_request
+			#     respiter = self.wsgi(environ, resp.start_response)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/router.py", line 242, in __call__
+			#     response = self.invoke_subrequest(request, use_tweens=True)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/router.py", line 217, in invoke_subrequest
+			#     response = handle_request(request)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/tweens.py", line 46, in excview_tween
+			#     response = view_callable(exc, request)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/config/views.py", line 355, in rendered_view
+			#     result = view(context, request)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 63, in __call__
+			#     data = self._process_input(context, request)
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 99, in _process_input
+			#     'redirect_url': self._process_redirect_url(context, request),
+			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 119, in _process_redirect_url
+			#     assert url.startswith(request.application_url), url #TODO
+			# AttributeError: 'NoneType' object has no attribute 'startswith'
+			url = url or ''
+			# assert url.startswith(request.application_url), url #TODO
 		else:
 			if not url:
 				#user clicked "sign in", so use page he came from
