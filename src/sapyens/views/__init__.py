@@ -43,6 +43,7 @@ class LoginView (object):
 			}
 			redirect_url = request.session.get(self.redirect_url_session_key)
 
+			save_url = False
 			if not redirect_url:
 				if isinstance(context, HTTPForbidden):
 					logger.error("should not happen %s", request.environ)
@@ -52,7 +53,7 @@ class LoginView (object):
 					if not redirect_url.startswith(request.application_url):
 						logger.warning("post from invalid referer %s" % request.referer)
 						redirect_url = self._get_default_redirect_url(request)
-				request.session[self.redirect_url_session_key] = redirect_url
+				save_url = True
 
 			if self._authenticate(data, request):
 				del request.session[self.redirect_url_session_key]
@@ -62,7 +63,8 @@ class LoginView (object):
 				return response
 			else:
 				auth_failed = True
-				print "wtf"
+				if save_url:
+					request.session[self.redirect_url_session_key] = redirect_url
 		else:
 			if request.method == 'POST':
 				logger.warning('user POSTed but not "log in" form - user possibly lost his original POST data: %s' % request.POST)
