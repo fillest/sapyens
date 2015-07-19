@@ -19,6 +19,8 @@ mako.directories = {{package}}:templates
 mako.module_directory = /tmp/mako_compiled_templates_{{package}}
 mako.strict_undefined = true
 
+
+# auth.userid = admin
 # auth.password = test
 
 #was generated on project creation using urandom (https://github.com/Pylons/pyramid/blob/master/pyramid/scaffolds/__init__.py)

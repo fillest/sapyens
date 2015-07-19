@@ -27,8 +27,15 @@
     </script>
 
 
+    %if request.authenticated_userid:
+       <div class="alert alert-warning">You are already logged in as ${request.authenticated_userid}.</div>
+        %if is_forbidden:
+           <div class="alert alert-error">Requested page requires more permissions than you currently have.</div>
+        %endif
+    %endif
+
     %if auth_failed:
-        <div class="alert alert-error">Incorrect email or password</div>
+        <div class="alert alert-error">Incorrect email or password.</div>
     %endif
 
     <form class="form-horizontal" action="" method="post">
@@ -37,13 +44,13 @@
         <div class="control-group">
             <label class="control-label" for="userid">Email</label>
             <div class="controls">
-                <input name="userid" type="text" id="userid" placeholder="" value="${data['userid']}">
+                <input name="userid" id="userid" type="text" value="${data['userid']}">
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="password">Password</label>
             <div class="controls">
-                <input name="password" type="password" id="password" placeholder="" value="${data['password']}">
+                <input name="password" id="password" type="password" value="${data['password']}">
             </div>
         </div>
 
@@ -53,7 +60,7 @@
                 ##    <input type="checkbox"> Remember me
                 ##</label>
 
-                <button type="submit" class="btn">Sign in</button>
+                <button type="submit" class="btn">Log in</button>
             </div>
         </div>
     </form>

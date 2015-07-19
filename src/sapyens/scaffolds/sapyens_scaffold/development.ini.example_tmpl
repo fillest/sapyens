@@ -28,6 +28,7 @@ mako.strict_undefined = true
 #to avoid conflicts on localhost
 session.cookie.name = session_{{package}}
 
+# auth.userid = admin
 # auth.password = test
 
 

@@ -10,8 +10,113 @@ import pyramid.security
 from pyramid.settings import asbool
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
+
+class LoginView (object):
+	route_name = 'login'
+	route_path = '/login'
+	permission = pyramid.security.NO_PERMISSION_REQUIRED
+	renderer = 'sapyens.views:templates/login.mako'
+	base_template = 'sapyens.views:templates/base.mako'
+	add_as_forbidden_view = True
+	page_title = "Log in"
+	redirect_url_session_key = 'log_in_redirect_url'
+	enable_email_form = True
+	enable_services = False
+
+	@classmethod
+	def include_to_config (cls, config):
+		config.add_route(cls.route_name, cls.route_path)
+		view = cls()
+		config.add_view(view, route_name = cls.route_name, renderer = cls.renderer, permission = cls.permission)
+		if cls.add_as_forbidden_view:
+			config.add_forbidden_view(view, renderer = cls.renderer)
+
+	def __call__ (self, context, request):
+		auth_failed = False
+		if self._form_was_submitted(request):
+			#TODO of not self.enable_email_form - ?
+			data = {
+				'userid': request.POST.get('userid', '').strip(),
+				'password': request.POST.get('password', '').strip(),
+			}
+			redirect_url = request.session.get(self.redirect_url_session_key)
+
+			if not redirect_url:
+				if isinstance(context, HTTPForbidden):
+					logger.error("should not happen %s", request.environ)
+					redirect_url = self._get_default_redirect_url(request)
+				else:
+					redirect_url = request.referer or self._get_default_redirect_url(request)
+					if not redirect_url.startswith(request.application_url):
+						logger.warning("post from invalid referer %s" % request.referer)
+						redirect_url = self._get_default_redirect_url(request)
+				request.session[self.redirect_url_session_key] = redirect_url
+
+			if self._authenticate(data, request):
+				del request.session[self.redirect_url_session_key]
+
+				response = HTTPFound(location = redirect_url)
+				response.headerlist.extend(pyramid.security.remember(request, data['userid']))
+				return response
+			else:
+				auth_failed = True
+				print "wtf"
+		else:
+			if request.method == 'POST':
+				logger.warning('user POSTed but not "log in" form - user possibly lost his original POST data: %s' % request.POST)
+
+			data = {
+				'userid': '',
+				'password': '',
+			}
+
+			if self.redirect_url_session_key not in request.session:
+				#user requests restricted page first time
+				if isinstance(context, HTTPForbidden):
+					url = request.url
+				#some unnatural case like direct hit or clean hit from other 200-page
+				else:
+					url = request.referer or self._get_default_redirect_url(request)
+					if not url.startswith(request.application_url):
+						logger.warning("invalid referer %s" % request.referer)
+						url = self._get_default_redirect_url(request)
+				request.session[self.redirect_url_session_key] = url
+
+		if isinstance(context, HTTPForbidden):
+			# RFC on 401: "The response MUST include a WWW-Authenticate header field"
+			# RFC on 403: "Authorization will not help and the request SHOULD NOT be repeated."
+			# 403 seems to be the less broken choice (this is very popular method in the wild)
+			request.response.status = 403
+
+		template_vars = {
+			'auth_failed': auth_failed,
+			'is_forbidden': isinstance(context, HTTPForbidden),
+			'data': data,
+			'base_template': self.base_template,
+			'page_title': self.page_title,
+			'enable_email_form': self.enable_email_form,
+			'enable_services': self.enable_services,
+		}
+		if self.enable_services:
+			template_vars['service_redirect_urls'] = {'google': request.route_path(GoogleSignInRedirectView.route_name)}
+		return template_vars
+
+	def _form_was_submitted (self, request):
+		return request.method == 'POST' and request.POST.get('_login_submit') == '1'
+
+	def _get_default_redirect_url (self, request):
+		return request.application_url
+
+	def _authenticate (self, data, request):
+		if 'auth.userid' not in request.registry.settings:
+			raise Exception("auth.userid not defined in settings")
+		if 'auth.password' not in request.registry.settings:
+			raise Exception("auth.password not defined in settings")
+
+		return (data['userid'] == request.registry.settings['auth.userid']
+			and data['password'] == request.registry.settings['auth.password'])
 
 class LogoutView (object):
 	route_name = 'logout'
@@ -27,139 +132,14 @@ class LogoutView (object):
 	def __call__ (self, context, request):
 		url = self._make_redirect_url(request)
 		response = HTTPFound(location = url)
-		return self._update_response(response, request)
+		response.headerlist.extend(pyramid.security.forget(request))
+		return response
 
 	def _make_redirect_url (self, request):
 		if self.redirect_route:
 			return request.route_url(self.redirect_route)
 		else:
 			return request.application_url
-
-	def _update_response (self, response, request):
-		response.headerlist.extend(pyramid.security.forget(request))
-		return response
-
-class LoginView (object):
-	route_name = 'login'
-	route_path = '/login'
-	permission = pyramid.security.NO_PERMISSION_REQUIRED
-	renderer = 'sapyens.views:templates/login.mako'
-	base_template = 'sapyens.views:templates/base.mako'
-	add_as_forbidden_view = True
-	page_title = "Sign in"
-	redirect_url_session_key = 'login_redirect_url'
-	enable_email_form = True
-	enable_services = False
-
-	@classmethod
-	def include_to_config (cls, config):
-		config.add_route(cls.route_name, cls.route_path)
-		view = cls()
-		config.add_view(view, route_name = cls.route_name, renderer = cls.renderer, permission = cls.permission)
-		if cls.add_as_forbidden_view:
-			config.add_forbidden_view(view, renderer = cls.renderer)
-
-	def __call__ (self, context, request):
-		data = self._process_input(context, request)
-		if self.redirect_url_session_key not in request.session:
-			request.session[self.redirect_url_session_key] = data['redirect_url']
-			#TODO remember if it was POST? save data?
-
-		#TODO of not self.enable_email_form
-		auth_failed = False
-		if request.method == 'POST':
-			if self._verify_credentials(data, request):
-				del request.session[self.redirect_url_session_key]
-
-				response = HTTPFound(location = data['redirect_url'])
-				return self.update_response(response, request, data)
-			else:
-				auth_failed = True
-
-		if isinstance(context, HTTPForbidden):
-			# RFC on 401: "The response MUST include a WWW-Authenticate header field"
-			# RFC on 403: "Authorization will not help and the request SHOULD NOT be repeated."
-			# So 403 seems to be the less broken choice (everybody already do this in the wild anyway)
-			request.response.status = 403
-
-		template_vars = {
-			'auth_failed': auth_failed,
-			'data': data,
-			'base_template': self.base_template,
-			'page_title': self.page_title,
-			'enable_email_form': self.enable_email_form,
-			'enable_services': self.enable_services,
-		}
-		if self.enable_services:
-			template_vars['service_redirect_urls'] = {'google': request.route_path(GoogleSignInRedirectView.route_name)}
-		return template_vars
-
-	def _process_input (self, context, request):
-		return {
-			'redirect_url': self._process_redirect_url(context, request),
-			#TODO use wtform
-			'userid': request.POST.get('userid', '').strip(),
-			'password': request.POST.get('password', '').strip(),
-		}
-
-	def _get_default_redirect_url (self, request):
-		return request.application_url
-
-	def _process_redirect_url (self, context, request):
-		url = request.session.get(self.redirect_url_session_key)
-		if isinstance(context, HTTPForbidden):
-			if not request.POST.get('_login_submit'):
-				#user hit protected url
-				#can't just check method == POST because the original hit could be POST
-				#TODO (or this view invocation is always GET first? check) 
-				url = request.url
-				request.session[self.redirect_url_session_key] = url #TODO move this out somehow
-
-			#else user submitted form
-
-			#TODO this is buggy
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/gunicorn/workers/sync.py", line 134, in handle_request
-			#     respiter = self.wsgi(environ, resp.start_response)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/router.py", line 242, in __call__
-			#     response = self.invoke_subrequest(request, use_tweens=True)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/router.py", line 217, in invoke_subrequest
-			#     response = handle_request(request)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/tweens.py", line 46, in excview_tween
-			#     response = view_callable(exc, request)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/pyramid/config/views.py", line 355, in rendered_view
-			#     result = view(context, request)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 63, in __call__
-			#     data = self._process_input(context, request)
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 99, in _process_input
-			#     'redirect_url': self._process_redirect_url(context, request),
-			#   File "/opt/logmill/venv/local/lib/python2.7/site-packages/sapyens/views/__init__.py", line 119, in _process_redirect_url
-			#     assert url.startswith(request.application_url), url #TODO
-			# AttributeError: 'NoneType' object has no attribute 'startswith'
-			url = url or ''
-			# assert url.startswith(request.application_url), url #TODO
-		else:
-			if not url:
-				#user clicked "sign in", so use page he came from
-				url = request.referer  #TODO can be relative? check
-			#else user submitted form
-			assert url.startswith(request.application_url), url #TODO
-
-		if not url.startswith(request.application_url):
-			url = self._get_default_redirect_url(request)
-		
-		return url
-
-	def _verify_credentials (self, data, request):
-		if 'auth.password' in request.registry.settings:
-			return data['password'] == request.registry.settings['auth.password']
-		else:
-			log.warning("auth.password not defined in settings")
-			return False
-
-	@classmethod
-	def update_response (cls, response, request, data):
-		response.headerlist.extend(pyramid.security.remember(request, data['userid']))
-		return response
 
 
 # class FacebookRedirectView (object):
@@ -333,7 +313,8 @@ class GoogleCallbackView (object):
 	def _remember_and_redirect (self, request, user_info, res):
 		url = request.session.pop(LoginView.redirect_url_session_key, None)
 		resp = HTTPFound(location = url or request.application_url)
-		return LoginView.update_response(resp, request, {'userid': user_info['email']})
+		resp.headerlist.extend(pyramid.security.remember(request, user_info['email']))
+		return resp
 
 	def _fetch_access_token (self, request):
 		params = dict(
@@ -349,7 +330,7 @@ class GoogleCallbackView (object):
 		try:
 			resp = self._fetch_url(url, params)
 		except Exception as e:
-			log.debug(e.read())
+			logger.debug(e.read())
 			raise
 		
 		resp = self.json_loads(resp)
