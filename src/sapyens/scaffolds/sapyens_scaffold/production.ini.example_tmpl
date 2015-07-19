@@ -25,9 +25,11 @@ session.secret = {{random_string}}
 
 
 [server:main]
-use = egg:waitress#main
-host = 127.0.0.1
-port = 6543
+use = egg:gunicorn#main
+bind = 127.0.0.1:6543
+preload_app = true
+workers = 2
+proc_name = {{package}}
 
 
 [loggers]

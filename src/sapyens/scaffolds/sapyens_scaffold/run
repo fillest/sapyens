@@ -6,12 +6,12 @@ set -e
 
 if [ "$#" -lt 1 ]
 then
-	echo "usage error: provide config as an argument"
+	echo "usage error: config argument required"
 	exit 1
 fi
 
 
-patterns="*.py;*.ini"
+watch_patterns="*.py;*.ini"
 
 sapyens_path="../sapyens"
 if [ -d "$sapyens_path" ]; then
@@ -22,9 +22,9 @@ ignore_patterns=--ignore-patterns\ "venv"
 
 
 watchmedo auto-restart \
-	--recursive \
-	--patterns $patterns \
+	--patterns $watch_patterns \
+	$ignore_patterns \
 	--directory . \
 	$extra_dirs \
-	$ignore_patterns \
-	pserve -- "$@"
+	--recursive \
+	gunicorn -- --paste "$@"

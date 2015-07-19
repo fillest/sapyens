@@ -5,9 +5,10 @@ transaction
 watchdog
 SQLAlchemy
 zope.sqlalchemy
-waitress
 mako
 pyramid_mako
 psycopg2
 wtforms
 webtest
+gunicorn >= 19.3.0
+	setproctitle
