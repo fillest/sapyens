@@ -27,34 +27,39 @@ def main (global_config, **settings):
 
     config = Configurator(
         settings = settings,
-        root_factory = RootFactory,
-        session_factory = pyramid.session.UnencryptedCookieSessionFactoryConfig(
+
+        session_factory = pyramid.session.SignedCookieSessionFactory(
             settings.get('session.secret', 'test'),
+            #"A number of seconds of inactivity before a session times out. ... This lifetime only applies to the value within the cookie."
+            timeout = int(settings.get('session.cookie.timeout',           60 * 60 * 24 * 31 * 12 * 2)),
+            max_age = int(settings.get('session.cookie.max_age',           60 * 60 * 24 * 31 * 12 * 2)),
+            #"The number of seconds that must pass before the cookie is automatically reissued as the result of accessing the session."
+            reissue_time = int(settings.get('session.cookie.reissue_time', 60 * 60 * 24 * 7*2)),
             cookie_name = settings.get('session.cookie.name', 's'),
-            timeout = 60*60*24*3,
-            cookie_max_age = 60*60*24*3,
+            httponly = True,
         ),
         authentication_policy = pyramid.authentication.SessionAuthenticationPolicy(
-            prefix = 'auth.',
             callback = simple_group_finder,
-            debug = False,
+            prefix = '_auth.',
         ),
+
         authorization_policy = pyramid.authorization.ACLAuthorizationPolicy(),
+        root_factory = RootFactory,
     )
 
     config.add_static_view('static', 'static', cache_max_age = 3600)
 
-    #sapyens.views.LoginView.include_to_config(config)
-    #sapyens.views.LogoutView.include_to_config(config)
+    # sapyens.views.LoginView.include_to_config(config)
+    # sapyens.views.LogoutView.include_to_config(config)
 
     config.scan()
 
     app = config.make_wsgi_app()
 
-    # Now (as late as possible) clean anything (e.g. sockets) that must not be shared after
-    # the WSGI server (like gunicorn with preload_app) forks
+    #Now (as late as possible) clean anything (e.g. sockets) that must not be shared after
+    #the WSGI server (like gunicorn with preload_app) forks
 
-    # Recreate SQLAlchemy connection pool to close any left connections (e.g. after reflection)
+    #Recreate SQLAlchemy connection pool to close any left connections (e.g. after reflection)
     {{package}}.db.DBSession.remove()
     engine.dispose()
 

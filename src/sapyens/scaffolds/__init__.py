@@ -1,4 +1,4 @@
-import  pyramid.scaffolds
+import pyramid.scaffolds
 
 
 class SapyensTemplate (pyramid.scaffolds.PyramidTemplate):

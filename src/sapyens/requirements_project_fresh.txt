@@ -1,4 +1,4 @@
-pyramid
+pyramid >= 1.5.7
 pyramid_debugtoolbar
 pyramid_tm
 transaction
