@@ -2,6 +2,7 @@
 use = egg:{{package}}
 
 pyramid.reload_templates = false
+pyramid.reload_assets = false
 pyramid.debug_authorization = false
 pyramid.debug_notfound = false
 pyramid.debug_routematch = false
