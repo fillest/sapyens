@@ -110,6 +110,7 @@ class CrudView (object):
 		else:
 			return {}
 
+#https://en.wikipedia.org/wiki/Post/Redirect/Get
 class SubmitView (CrudView):
 	redirect_route = None
 	db_session = None
