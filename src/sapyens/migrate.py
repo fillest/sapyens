@@ -128,7 +128,7 @@ def _create_next_migration_file (avail_ids, name, path, log):
 
 def _assert_migration_dir_exists (path):
 	if not os.path.isdir(path):
-		raise ValueError(u"specified path is not valid dir path: %s" % path)
+		raise ValueError(u"'%s' is not valid migration directory path (check your working directory path?)" % path)
 
 def _parse_args ():
 	parser = argparse.ArgumentParser()
