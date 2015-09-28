@@ -4,7 +4,7 @@ use = egg:{{package}}
 pyramid.reload_templates = true
 pyramid.reload_assets = false
 pyramid.debug_authorization = true
-pyramid.debug_notfound = true
+pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.default_locale_name = en
 pyramid.includes =
@@ -16,7 +16,7 @@ pyramid.includes =
 #debugtoolbar.hosts = 127.0.0.1 ::1
 #debugtoolbar.enabled = false
 
-sqlalchemy.url = postgresql+psycopg2://dbuser:password@localhost/{{package}}
+sqlalchemy.url = postgresql+psycopg2://your_user:your_password@localhost/{{package}}
 
 sapyens.migrate.dir_path = {{package}}/db/migrations
 sapyens.db.enable_setattr_check = true
