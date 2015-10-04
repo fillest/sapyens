@@ -11,12 +11,12 @@
 
 		##<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="${request.static_url('{{package}}:static/favicon_{{package}}.ico')}">
 
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="${request.static_url('{{package}}:static/bootstrap-3.3.5-dist/css/bootstrap.min.css')}" />
 		<%block name="css"></%block>
 
 		<script src="${request.static_url('{{package}}:static/js/jquery-1.11.3.min.js')}"></script>
-		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-		##<script src="http://coffeescript.org/extras/coffee-script.js"></script>
+		<script src="${request.static_url('{{package}}:static/bootstrap-3.3.5-dist/js/bootstrap.min.js')}"></script>
+		<script src="${request.static_url('{{package}}:static/js/coffee-script-1.10.0.min.js')}"></script>
 		<%block name="js"></%block>
 	</head>
 	<body>
