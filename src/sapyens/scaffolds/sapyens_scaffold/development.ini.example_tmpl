@@ -3,7 +3,7 @@ use = egg:{{package}}
 
 pyramid.reload_templates = true
 pyramid.reload_assets = false
-pyramid.debug_authorization = true
+pyramid.debug_authorization = false
 pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.default_locale_name = en
