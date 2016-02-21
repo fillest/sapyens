@@ -36,7 +36,7 @@ session.cookie.name = session_{{package}}
 use = egg:gunicorn#main
 bind = 127.0.0.1:6543
 preload_app = true
-workers = 2
+workers = 8
 proc_name = {{package}}
 
 

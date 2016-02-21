@@ -31,7 +31,7 @@ session.secret = {{random_string}}
 use = egg:gunicorn#main
 bind = 127.0.0.1:6543
 preload_app = true
-workers = 2
+workers = 4
 proc_name = {{package}}
 
 
