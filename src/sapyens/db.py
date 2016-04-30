@@ -109,7 +109,7 @@ def make_classes (use_zope_ext = True):
 			return self
 
 	return collections.namedtuple('Classes', ('DBSession', 'QueryPropertyMixin', 'ScopedSessionMixin'))(
-		DBSession, QueryPropertyMixin, ScopedSessionMixin
+		DBSession, QueryPropertyMixin, ScopedSessionMixin,
 	)
 
 def init (engine, DBSession, Reflected, settings, on_before_reflect = None, import_before_reflect = None):

@@ -1,6 +1,5 @@
-from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-import {{package}}.db
+from pyramid.config import Configurator
 import pyramid.session
 import pyramid.authorization
 import pyramid.authentication
@@ -8,6 +7,7 @@ import pyramid.security
 import sapyens.views
 import sapyens.helpers
 #import sapyens.crud
+import {{package}}.db
 
 
 class RootFactory (object):
@@ -17,7 +17,6 @@ class RootFactory (object):
 
     def __init__ (self, request):
         pass
-
 
 def main (global_config, **settings):
     sapyens.helpers.set_utc_timezone()
