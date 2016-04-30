@@ -1,12 +1,15 @@
 import logging
+import os
 from contextlib import contextmanager
 import collections
 from sqlalchemy.ext.declarative import declarative_base, DeferredReflection
 from sqlalchemy.orm import scoped_session, sessionmaker, class_mapper
 from pyramid.settings import asbool
-
-#NOTE conditional zope.sqlalchemy import in make_classes() below
-#NOTE pyramid.httpexceptions.HTTPNotFound import in notfound_tween_factory() below
+from pyramid.httpexceptions import HTTPNotFound
+try:
+	from zope.sqlalchemy import ZopeTransactionExtension
+except ImportError:
+	ZopeTransactionExtension = None
 
 
 @contextmanager
@@ -62,9 +65,8 @@ class Reflected (Base):
 			setattr(self, name, value)
 		return self
 
-#this is for Reflected.try_get. A model shouldn't raise HTTPNotFound cause it can be used without pyramid
 def notfound_tween_factory (handler, _registry):
-	from pyramid.httpexceptions import HTTPNotFound  #TODO (to avoid module-level dependency) move to module-level
+	"""NotFound is an abstraction for Reflected.try_get - a model shouldn't raise HTTPNotFound because it can be used without pyramid"""
 
 	def tween (request):
 		try:
@@ -75,14 +77,23 @@ def notfound_tween_factory (handler, _registry):
 		return response
 	return tween
 
+class DefaultValue (object):
+	pass
 
-def make_classes (use_zope_ext = True):
-	if use_zope_ext:
-		from zope.sqlalchemy import ZopeTransactionExtension
+def make_classes (use_zope_ext = DefaultValue):
+	if use_zope_ext is DefaultValue:
+		disable_ext = asbool(os.environ.get('SAPYENS_DISABLE_ZOPE_TR_EXT'))
+		b_use_zope_ext = not disable_ext
+	else:
+		b_use_zope_ext = bool(use_zope_ext)
+	if b_use_zope_ext:
+		if ZopeTransactionExtension is None:
+			raise Exception('zope.sqlalchemy.ZopeTransactionExtension is required but failed to import')
 
-	DBSession = scoped_session(sessionmaker(
-		extension = ZopeTransactionExtension() if use_zope_ext else None
-	))
+	kw = {}
+	if b_use_zope_ext:
+		kw['extension'] = ZopeTransactionExtension()
+	DBSession = scoped_session(sessionmaker(**kw))
 
 	class QueryPropertyMixin (object):
 		query = DBSession.query_property()
