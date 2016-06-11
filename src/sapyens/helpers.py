@@ -45,10 +45,6 @@ def raise_not_found ():
 	raise HTTPNotFound()
 
 
-def set_utc_timezone ():
-	os.environ['TZ'] = 'UTC'
-	time.tzset()
-
 
 @contextlib.contextmanager
 def change_cwd (path):
