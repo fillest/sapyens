@@ -1,5 +1,5 @@
-from sqlalchemy import engine_from_config
-from pyramid.config import Configurator
+import sqlalchemy
+import pyramid.config
 import pyramid.session
 import pyramid.authorization
 import pyramid.authentication
@@ -16,11 +16,14 @@ class RootFactory (object):
     def __init__ (self, request):
         pass
 
+def simple_group_finder (userid, request):
+    return ['group:admin'] if userid == 'admin' else None
+
 def main (global_config, **settings):
-    engine = engine_from_config(settings, 'sqlalchemy.')
+    engine = sqlalchemy.engine_from_config(settings, 'sqlalchemy.')
     {{package}}.db.init(engine, settings)
 
-    config = Configurator(
+    config = pyramid.config.Configurator(
         settings = settings,
 
         session_factory = pyramid.session.SignedCookieSessionFactory(
@@ -51,14 +54,12 @@ def main (global_config, **settings):
 
     app = config.make_wsgi_app()
 
-    #Now (as late as possible) clean anything (e.g. sockets) that must not be shared after
-    #the WSGI server (like gunicorn with preload_app) forks
+    #------
+    #Here (as late as possible) we should close anything (e.g. sockets) that
+    #should not be shared after a possible fork (e.g. gunicorn with enabled preload_app)
 
     #Recreate SQLAlchemy connection pool to close any left connections (e.g. after reflection)
     {{package}}.db.DBSession.remove()
     engine.dispose()
 
     return app
-
-def simple_group_finder (userid, request):
-    return ['group:admin'] if userid == 'admin' else None

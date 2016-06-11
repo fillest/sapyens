@@ -13,11 +13,7 @@ pyramid.includes =
     pyramid_mako
     sapyens
 
-#debugtoolbar.hosts = 127.0.0.1 ::1
-#debugtoolbar.enabled = false
-
-sqlalchemy.url = postgresql+psycopg2://your_user:your_password@localhost/{{package}}
-
+sqlalchemy.url = postgresql+psycopg2://{{package}}:your_password@localhost/{{package}}
 sapyens.migrate.dir_path = {{package}}/db/migrations
 sapyens.db.enable_setattr_check = true
 
@@ -25,23 +21,23 @@ mako.directories = {{package}}:templates
 mako.module_directory = /tmp/mako_compiled_templates_{{package}}
 mako.strict_undefined = true
 
-#to avoid conflicts on localhost
-session.cookie.name = session_{{package}}
-
 # auth.userid = admin
 # auth.password = test
+
+#to avoid conflicts on localhost
+session.cookie.name = session_{{package}}
 
 
 [server:main]
 use = egg:gunicorn#main
 bind = 127.0.0.1:6543
 preload_app = true
-workers = 8
+workers = 16
 proc_name = {{package}}
 
 
 [loggers]
-keys = root, {{package_logger}}, sqlalchemy
+keys = root, {{package_logger}}, sqlalchemy, migrate
 
 [handlers]
 keys = console
@@ -66,6 +62,11 @@ qualname = sqlalchemy.engine
 # "level = INFO" logs SQL queries.
 # "level = DEBUG" logs SQL queries and results.
 # "level = WARN" logs neither.  (Recommended for production systems.)
+
+[logger_migrate]
+level = INFO
+handlers =
+qualname = sapyens.migrate
 
 [handler_console]
 class = StreamHandler

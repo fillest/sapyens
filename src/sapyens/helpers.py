@@ -2,7 +2,7 @@ import os
 import time
 import contextlib
 import venusian
-from pyramid.httpexceptions import HTTPNotFound
+import pyramid.httpexceptions
 
 
 class add_route (object):
@@ -40,11 +40,8 @@ class include_to_config (object):
 		venusian.attach(wrapped, self.register)
 		return wrapped
 
-
 def raise_not_found ():
-	raise HTTPNotFound()
-
-
+	raise pyramid.httpexceptions.HTTPNotFound()
 
 @contextlib.contextmanager
 def change_cwd (path):
