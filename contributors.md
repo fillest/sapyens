@@ -1,4 +1,4 @@
-# sapyens contributors (ordered by first contribution):
+# Sapyens contributors (ordered by respective first contribution date):
 
 * Philipp Saveliev <fsfeel@gmail.com>
 * Stanislav Tsybulka <ixentrum@gmail.com>
